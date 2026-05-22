@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "numops"
+version = "0.1.0.dev0"
+description = "Reference consumer for amergin — minimal numerical operations package"
+requires-python = ">=3.10"
+dependencies = [
+    "amergin",
+    "numpy>=1.20",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/numops"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.amergin.benchmark]
+parameters = {size = [64, 128, 256]}

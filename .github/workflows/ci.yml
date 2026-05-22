@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    name: "test / py${{ matrix.python }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install amergin from source
+        run: pip install "amergin @ git+https://github.com/wilhelmi-lab/amergin.git"
+      - run: pip install -e ".[dev]"
+      # GPU alternatives (normalize_cupy) register but fall back to original on CPU runner
+      - run: pytest tests/ -v
