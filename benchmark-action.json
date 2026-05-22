@@ -1,0 +1,12 @@
+[
+  {
+    "name": "normalize/numpy",
+    "unit": "ms",
+    "value": 0.003
+  },
+  {
+    "name": "normalize/original",
+    "unit": "ms",
+    "value": 0.003
+  }
+]

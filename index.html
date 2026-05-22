@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>amergin report — numops @ b5f80adeb5ba</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; color: #222; max-width: 1100px; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 0.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.2rem; }
+    h3 { font-size: 0.95rem; margin: 1rem 0 0.3rem; color: #444; }
+    table { border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; }
+    th, td { border: 1px solid #ddd; padding: 0.35rem 0.7rem; text-align: left; }
+    th { background: #f5f5f5; font-weight: 600; }
+    .pass { color: #1a7f37; font-weight: 600; }
+    .fail { color: #cf222e; font-weight: 600; }
+    .regress { background: #fff8c5; }
+    .meta { color: #666; font-size: 0.8rem; }
+    img { max-width: 100%; margin-top: 0.5rem; }
+    .badge { vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<h1>amergin report</h1>
+<p class="meta">
+  Module: <strong>numops</strong> &nbsp;|&nbsp;
+  Commit: <code>b5f80adeb5ba</code> &nbsp;|&nbsp;
+  Generated: 2026-05-22 13:13 UTC
+</p>
+
+
+<p class="meta">
+  System: Linux x86_64 &nbsp;|&nbsp;
+  Python 3.12.13 &nbsp;|&nbsp;
+  CPU: x86_64
+  
+  &nbsp;|&nbsp; fingerprint: <code>afc7955e44e3700f</code>
+</p>
+
+
+<h2>Verification results</h2>
+
+  
+  <h3>normalize</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameters</th>
+        <th>Backend</th>
+        <th>Status</th>
+        <th>Max |diff|</th>
+      </tr>
+    </thead>
+    <tbody>
+    
+      
+      <tr>
+        <td><code>normalize_size64</code></td>
+        <td>numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+      
+    
+      
+      <tr>
+        <td><code>normalize_size128</code></td>
+        <td>numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+      
+    
+      
+      <tr>
+        <td><code>normalize_size256</code></td>
+        <td>numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+      
+    
+    </tbody>
+  </table>
+  
+
+
+<h2>Timing results</h2>
+
+  
+  <h3>normalize</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Backend</th>
+        <th>Median (ms)</th>
+        <th>Iterations</th>
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        <td>numpy</td>
+        <td>0.0030</td>
+        <td>3</td>
+      </tr>
+    
+      <tr>
+        <td>original</td>
+        <td>0.0030</td>
+        <td>3</td>
+      </tr>
+    
+    </tbody>
+  </table>
+  
+  <img src="normalize_timings.png" alt="normalize timing chart">
+  
+  
+
+
+
+
+
+
+</body>
+</html>
