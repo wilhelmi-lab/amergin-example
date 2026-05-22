@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install amergin from source
-        run: pip install "amergin @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+        run: pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
       - run: pip install -e ".[dev]"
       # GPU alternatives (normalize_cupy) register but fall back to original on CPU runner
       - run: pytest tests/ -v
