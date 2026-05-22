@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>amergin report — numops @ f3eeca32e971</title>
+  <title>amergin report — numops @ 4c26cf1cfa2c</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; color: #222; max-width: 1100px; }
     h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
@@ -29,8 +29,8 @@
 <h1>amergin report</h1>
 <p class="meta">
   Module: <strong>numops</strong> &nbsp;|&nbsp;
-  Commit: <code>f3eeca32e971</code> &nbsp;|&nbsp;
-  Generated: 2026-05-22 18:46 UTC
+  Commit: <code>4c26cf1cfa2c</code> &nbsp;|&nbsp;
+  Generated: 2026-05-22 20:54 UTC
 </p>
 
 
@@ -46,6 +46,8 @@
 <h2>Verification results</h2>
 
   
+  
+  
   <h3>moving_average</h3>
   <table>
     <thead>
@@ -53,15 +55,15 @@
         
         <th class="group" colspan="2">Parameters</th>
         
-        <th rowspan="2" class="sortable">Backend<span class="sort-ind">↕</span></th>
-        <th rowspan="2" class="sortable">Status<span class="sort-ind">↕</span></th>
-        <th rowspan="2" class="sortable">Max |diff|<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="2" rowspan="2">Backend<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="3" rowspan="2">Status<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="4" rowspan="2">Max |diff|<span class="sort-ind">↕</span></th>
       </tr>
       <tr>
         
-        <th class="sortable">size<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
         
-        <th class="sortable">window<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="1">window<span class="sort-ind">↕</span></th>
         
       </tr>
     </thead>
@@ -222,6 +224,8 @@
     </tbody>
   </table>
   
+  
+  
   <h3>normalize</h3>
   <table>
     <thead>
@@ -229,13 +233,13 @@
         
         <th class="group" colspan="1">Parameters</th>
         
-        <th rowspan="2" class="sortable">Backend<span class="sort-ind">↕</span></th>
-        <th rowspan="2" class="sortable">Status<span class="sort-ind">↕</span></th>
-        <th rowspan="2" class="sortable">Max |diff|<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="1" rowspan="2">Backend<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="2" rowspan="2">Status<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="3" rowspan="2">Max |diff|<span class="sort-ind">↕</span></th>
       </tr>
       <tr>
         
-        <th class="sortable">size<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
         
       </tr>
     </thead>
@@ -295,10 +299,494 @@
     </tbody>
   </table>
   
+  
+  
+  <h3>normalize_smoothed</h3>
+  <table>
+    <thead>
+      <tr>
+        
+        <th class="group" colspan="2">Parameters</th>
+        
+        <th class="sortable" data-col="2" rowspan="2">Backend<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="3" rowspan="2">Status<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="4" rowspan="2">Max |diff|<span class="sort-ind">↕</span></th>
+      </tr>
+      <tr>
+        
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="1">window<span class="sort-ind">↕</span></th>
+        
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=convolve+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.388e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=convolve+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.388e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=cumsum+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.166e-15
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=cumsum+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.166e-15
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=original+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        <td>original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.388e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=convolve+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.082e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=convolve+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.082e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=cumsum+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            3.608e-16
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=cumsum+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            3.608e-16
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=original+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        <td>original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.082e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=convolve+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.041e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=convolve+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.041e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=cumsum+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.474e-15
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=cumsum+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.474e-15
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>moving_average=original+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        <td>original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            1.041e-17
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=convolve+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            6.939e-18
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=convolve+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            6.939e-18
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=cumsum+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            7.130e-16
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=cumsum+normalize=original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            7.130e-16
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>moving_average=original+normalize=numpy</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            0.000e+00
+          
+        </td>
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        <td>original</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            6.939e-18
+          
+        </td>
+      </tr>
+    
+    </tbody>
+  </table>
+  
 
 
 <h2>Timing results</h2>
 
+  
+  
   
   <h3>moving_average</h3>
   <table>
@@ -314,22 +802,22 @@
       </tr>
       <tr>
         
-        <th class="sortable">size<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
         
-        <th class="sortable">window<span class="sort-ind">↕</span></th>
-        
-        
-        <th class="sortable">original<span class="sort-ind">↕</span></th>
-        
-        <th class="sortable">convolve<span class="sort-ind">↕</span></th>
-        
-        <th class="sortable">cumsum<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="1">window<span class="sort-ind">↕</span></th>
         
         
+        <th class="sortable" data-col="2">original<span class="sort-ind">↕</span></th>
         
-        <th class="sortable">convolve<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="3">convolve<span class="sort-ind">↕</span></th>
         
-        <th class="sortable">cumsum<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="4">cumsum<span class="sort-ind">↕</span></th>
+        
+        
+        
+        <th class="sortable" data-col="5">convolve<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="6">cumsum<span class="sort-ind">↕</span></th>
         
         
       </tr>
@@ -345,17 +833,17 @@
           
         
         
-        <td>2.6160</td>
+        <td>2.7550</td>
         
         <td>0.0060</td>
         
-        <td>0.0100</td>
+        <td>0.0090</td>
         
         
         
-        <td><span class="pass">436.00x</span></td>
+        <td><span class="pass">459.17x</span></td>
         
-        <td><span class="pass">261.60x</span></td>
+        <td><span class="pass">306.11x</span></td>
         
         
       </tr>
@@ -369,17 +857,17 @@
           
         
         
-        <td>2.3660</td>
+        <td>2.3790</td>
         
-        <td>0.0120</td>
+        <td>0.0130</td>
         
-        <td>0.0090</td>
+        <td>0.0100</td>
         
         
         
-        <td><span class="pass">197.17x</span></td>
+        <td><span class="pass">183.00x</span></td>
         
-        <td><span class="pass">262.89x</span></td>
+        <td><span class="pass">237.90x</span></td>
         
         
       </tr>
@@ -393,7 +881,7 @@
           
         
         
-        <td>10.5280</td>
+        <td>11.1430</td>
         
         <td>0.0090</td>
         
@@ -401,9 +889,9 @@
         
         
         
-        <td><span class="pass">1169.78x</span></td>
+        <td><span class="pass">1238.11x</span></td>
         
-        <td><span class="pass">584.89x</span></td>
+        <td><span class="pass">619.06x</span></td>
         
         
       </tr>
@@ -417,17 +905,17 @@
           
         
         
-        <td>10.6400</td>
+        <td>10.5930</td>
         
-        <td>0.0350</td>
+        <td>0.0380</td>
         
-        <td>0.0170</td>
+        <td>0.0180</td>
         
         
         
-        <td><span class="pass">304.00x</span></td>
+        <td><span class="pass">278.76x</span></td>
         
-        <td><span class="pass">625.88x</span></td>
+        <td><span class="pass">588.50x</span></td>
         
         
       </tr>
@@ -438,6 +926,8 @@
   <img src="moving_average_size_timings.png" alt="moving_average timing chart">
   
   <img src="moving_average_window_timings.png" alt="moving_average timing chart">
+  
+  
   
   
   <h3>normalize</h3>
@@ -454,16 +944,16 @@
       </tr>
       <tr>
         
-        <th class="sortable">size<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
         
         
-        <th class="sortable">original<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="1">original<span class="sort-ind">↕</span></th>
         
-        <th class="sortable">numpy<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="2">numpy<span class="sort-ind">↕</span></th>
         
         
         
-        <th class="sortable">numpy<span class="sort-ind">↕</span></th>
+        <th class="sortable" data-col="3">numpy<span class="sort-ind">↕</span></th>
         
         
       </tr>
@@ -495,13 +985,13 @@
           
         
         
-        <td>0.0050</td>
+        <td>0.0060</td>
         
         <td>0.0050</td>
         
         
         
-        <td><span class="">1.00x</span></td>
+        <td><span class="pass">1.20x</span></td>
         
         
       </tr>
@@ -529,6 +1019,228 @@
   
   <img src="normalize_size_timings.png" alt="normalize timing chart">
   
+  <img src="normalize_smoothed_size_timings.png" alt="normalize timing chart">
+  
+  <img src="normalize_smoothed_window_timings.png" alt="normalize timing chart">
+  
+  
+  
+  
+  <h3>normalize_smoothed</h3>
+  <table>
+    <thead>
+      <tr>
+        
+        <th class="group" colspan="2">Parameters</th>
+        
+        <th class="group" colspan="7">Time (ms)</th>
+        
+        <th class="group" colspan="6">Speedup</th>
+        
+      </tr>
+      <tr>
+        
+        <th class="sortable" data-col="0">size<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="1">window<span class="sort-ind">↕</span></th>
+        
+        
+        <th class="sortable" data-col="2">original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="3">moving_average=original+normalize=original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="4">moving_average=convolve+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="5">moving_average=convolve+normalize=original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="6">moving_average=cumsum+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="7">moving_average=cumsum+normalize=original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="8">moving_average=original+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        
+        
+        <th class="sortable" data-col="9">original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="10">moving_average=convolve+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="11">moving_average=convolve+normalize=original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="12">moving_average=cumsum+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="13">moving_average=cumsum+normalize=original<span class="sort-ind">↕</span></th>
+        
+        <th class="sortable" data-col="14">moving_average=original+normalize=numpy<span class="sort-ind">↕</span></th>
+        
+        
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>8</td>
+          
+        
+        
+        <td>0.0180</td>
+        
+        <td>5.4630</td>
+        
+        <td>0.0150</td>
+        
+        <td>0.0140</td>
+        
+        <td>0.0200</td>
+        
+        <td>0.0210</td>
+        
+        <td>5.4120</td>
+        
+        
+        
+        <td><span class="pass">303.50x</span></td>
+        
+        <td><span class="pass">364.20x</span></td>
+        
+        <td><span class="pass">390.21x</span></td>
+        
+        <td><span class="pass">273.15x</span></td>
+        
+        <td><span class="pass">260.14x</span></td>
+        
+        <td><span class="pass">1.01x</span></td>
+        
+        
+      </tr>
+    
+      <tr>
+        
+          
+          <td>1024</td>
+          
+          <td>64</td>
+          
+        
+        
+        <td>0.0330</td>
+        
+        <td>5.1610</td>
+        
+        <td>0.0280</td>
+        
+        <td>0.0280</td>
+        
+        <td>0.0210</td>
+        
+        <td>0.0200</td>
+        
+        <td>5.1190</td>
+        
+        
+        
+        <td><span class="pass">156.39x</span></td>
+        
+        <td><span class="pass">184.32x</span></td>
+        
+        <td><span class="pass">184.32x</span></td>
+        
+        <td><span class="pass">245.76x</span></td>
+        
+        <td><span class="pass">258.05x</span></td>
+        
+        <td><span class="pass">1.01x</span></td>
+        
+        
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>8</td>
+          
+        
+        
+        <td>0.0260</td>
+        
+        <td>22.0480</td>
+        
+        <td>0.0210</td>
+        
+        <td>0.0220</td>
+        
+        <td>0.0370</td>
+        
+        <td>0.0370</td>
+        
+        <td>21.8410</td>
+        
+        
+        
+        <td><span class="pass">848.00x</span></td>
+        
+        <td><span class="pass">1049.90x</span></td>
+        
+        <td><span class="pass">1002.18x</span></td>
+        
+        <td><span class="pass">595.89x</span></td>
+        
+        <td><span class="pass">595.89x</span></td>
+        
+        <td><span class="pass">1.01x</span></td>
+        
+        
+      </tr>
+    
+      <tr>
+        
+          
+          <td>4096</td>
+          
+          <td>64</td>
+          
+        
+        
+        <td>0.0790</td>
+        
+        <td>21.3910</td>
+        
+        <td>0.0840</td>
+        
+        <td>0.0770</td>
+        
+        <td>0.0370</td>
+        
+        <td>0.0380</td>
+        
+        <td>22.0530</td>
+        
+        
+        
+        <td><span class="pass">270.77x</span></td>
+        
+        <td><span class="pass">254.65x</span></td>
+        
+        <td><span class="pass">277.81x</span></td>
+        
+        <td><span class="pass">578.14x</span></td>
+        
+        <td><span class="pass">562.92x</span></td>
+        
+        <td><span class="">0.97x</span></td>
+        
+        
+      </tr>
+    
+    </tbody>
+  </table>
+  
   
 
 
@@ -542,21 +1254,7 @@ document.querySelectorAll('th.sortable').forEach(function(th) {
     var table = th.closest('table');
     var tbody = table.querySelector('tbody');
     var rows = Array.from(tbody.querySelectorAll('tr'));
-    var col = Array.from(th.parentNode.children).indexOf(th);
-
-    /* Adjust col for rowspan/colspan in the group header row above */
-    var thead = table.querySelector('thead');
-    var headerRows = thead.querySelectorAll('tr');
-    if (headerRows.length > 1 && th.parentNode === headerRows[1]) {
-      var offset = 0;
-      Array.from(headerRows[0].children).forEach(function(groupTh) {
-        var span = parseInt(groupTh.getAttribute('colspan') || '1');
-        var rs   = parseInt(groupTh.getAttribute('rowspan') || '1');
-        if (rs > 1 && offset <= col) { offset++; }
-      });
-      col = col + offset;
-    }
-
+    var col = parseInt(th.dataset.col);
     var asc = th.dataset.sortDir !== 'asc';
 
     rows.sort(function(a, b) {
