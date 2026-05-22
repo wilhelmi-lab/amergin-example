@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>amergin report — numops @ 40393bf847a5</title>
+  <title>amergin report — numops @ d976c9eea29a</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; color: #222; max-width: 1100px; }
     h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
@@ -25,8 +25,8 @@
 <h1>amergin report</h1>
 <p class="meta">
   Module: <strong>numops</strong> &nbsp;|&nbsp;
-  Commit: <code>40393bf847a5</code> &nbsp;|&nbsp;
-  Generated: 2026-05-22 13:39 UTC
+  Commit: <code>d976c9eea29a</code> &nbsp;|&nbsp;
+  Generated: 2026-05-22 14:13 UTC
 </p>
 
 
@@ -41,6 +41,133 @@
 
 <h2>Verification results</h2>
 
+  
+  <h3>moving_average</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameters</th>
+        <th>Backend</th>
+        <th>Status</th>
+        <th>Max |diff|</th>
+      </tr>
+    </thead>
+    <tbody>
+    
+      
+      <tr>
+        <td><code>moving_average_size512_window8</code></td>
+        <td>numpy_convolve</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.220e-16
+          
+        </td>
+      </tr>
+      
+      <tr>
+        <td><code>moving_average_size512_window8</code></td>
+        <td>numpy_cumsum</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            7.827e-15
+          
+        </td>
+      </tr>
+      
+    
+      
+      <tr>
+        <td><code>moving_average_size512_window64</code></td>
+        <td>numpy_convolve</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.220e-16
+          
+        </td>
+      </tr>
+      
+      <tr>
+        <td><code>moving_average_size512_window64</code></td>
+        <td>numpy_cumsum</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.998e-15
+          
+        </td>
+      </tr>
+      
+    
+      
+      <tr>
+        <td><code>moving_average_size2048_window8</code></td>
+        <td>numpy_convolve</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.220e-16
+          
+        </td>
+      </tr>
+      
+      <tr>
+        <td><code>moving_average_size2048_window8</code></td>
+        <td>numpy_cumsum</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.998e-14
+          
+        </td>
+      </tr>
+      
+    
+      
+      <tr>
+        <td><code>moving_average_size2048_window64</code></td>
+        <td>numpy_convolve</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            2.220e-16
+          
+        </td>
+      </tr>
+      
+      <tr>
+        <td><code>moving_average_size2048_window64</code></td>
+        <td>numpy_cumsum</td>
+        <td class="pass">
+          PASS
+        </td>
+        <td>
+          
+            7.605e-15
+          
+        </td>
+      </tr>
+      
+    
+    </tbody>
+  </table>
   
   <h3>normalize</h3>
   <table>
@@ -106,6 +233,118 @@
 
 <h2>Timing results</h2>
 
+  
+  <h3>moving_average_numpy</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameters</th>
+        
+        <th>convolve (ms)</th>
+        
+        <th>cumsum (ms)</th>
+        
+        
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        <td><code>size=512, window=8</code></td>
+        
+        <td>0.0060</td>
+        
+        <td>0.0100</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=512, window=64</code></td>
+        
+        <td>0.0120</td>
+        
+        <td>0.0090</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=2048, window=8</code></td>
+        
+        <td>0.0100</td>
+        
+        <td>0.0160</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=2048, window=64</code></td>
+        
+        <td>0.0350</td>
+        
+        <td>0.0160</td>
+        
+        
+      </tr>
+    
+    </tbody>
+  </table>
+  
+  <img src="moving_average_numpy_timings.png" alt="moving_average_numpy timing chart">
+  
+  
+  <h3>moving_average</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameters</th>
+        
+        <th>original (ms)</th>
+        
+        
+      </tr>
+    </thead>
+    <tbody>
+    
+      <tr>
+        <td><code>size=512, window=8</code></td>
+        
+        <td>1.9950</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=512, window=64</code></td>
+        
+        <td>1.8510</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=2048, window=8</code></td>
+        
+        <td>8.4260</td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=2048, window=64</code></td>
+        
+        <td>7.7940</td>
+        
+        
+      </tr>
+    
+    </tbody>
+  </table>
+  
+  <img src="moving_average_timings.png" alt="moving_average timing chart">
+  
   
   <h3>normalize</h3>
   <table>
