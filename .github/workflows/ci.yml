@@ -23,3 +23,31 @@ jobs:
       - run: pip install -e ".[dev]"
       # GPU alternatives (normalize_cupy) register but fall back to original on CPU runner
       - run: pytest tests/ -v
+
+  pages:
+    name: "deploy report to GitHub Pages"
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install amergin from source
+        run: pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+      - run: pip install -e .
+      - name: Run benchmark + verify + evaluate
+        run: amergin run --steps benchmark,verify,evaluate
+      - name: Collect report
+        run: |
+          report_dir=$(find ./benchmark-data -maxdepth 2 -name "index.html" | head -1 | xargs dirname)
+          mkdir -p ./pages
+          cp -r "$report_dir"/. ./pages/
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./pages
