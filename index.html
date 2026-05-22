@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>amergin report — numops @ b5f80adeb5ba</title>
+  <title>amergin report — numops @ 40393bf847a5</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; color: #222; max-width: 1100px; }
     h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
@@ -25,8 +25,8 @@
 <h1>amergin report</h1>
 <p class="meta">
   Module: <strong>numops</strong> &nbsp;|&nbsp;
-  Commit: <code>b5f80adeb5ba</code> &nbsp;|&nbsp;
-  Generated: 2026-05-22 13:13 UTC
+  Commit: <code>40393bf847a5</code> &nbsp;|&nbsp;
+  Generated: 2026-05-22 13:39 UTC
 </p>
 
 
@@ -111,23 +111,61 @@
   <table>
     <thead>
       <tr>
-        <th>Backend</th>
-        <th>Median (ms)</th>
-        <th>Iterations</th>
+        <th>Parameters</th>
+        
+        <th>original (ms)</th>
+        
+        <th>numpy (ms)</th>
+        
+        
+        
+        <th>numpy speedup</th>
+        
+        
       </tr>
     </thead>
     <tbody>
     
       <tr>
-        <td>numpy</td>
+        <td><code>size=64</code></td>
+        
         <td>0.0030</td>
-        <td>3</td>
+        
+        <td>0.0030</td>
+        
+        
+        
+        <td><span class="">1.00x</span></td>
+        
+        
       </tr>
     
       <tr>
-        <td>original</td>
+        <td><code>size=128</code></td>
+        
         <td>0.0030</td>
-        <td>3</td>
+        
+        <td>0.0030</td>
+        
+        
+        
+        <td><span class="">1.00x</span></td>
+        
+        
+      </tr>
+    
+      <tr>
+        <td><code>size=256</code></td>
+        
+        <td>0.0030</td>
+        
+        <td>0.0030</td>
+        
+        
+        
+        <td><span class="">1.00x</span></td>
+        
+        
       </tr>
     
     </tbody>
