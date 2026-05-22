@@ -12,6 +12,9 @@
     table { border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; }
     th, td { border: 1px solid #ddd; padding: 0.35rem 0.7rem; text-align: left; }
     th { background: #f5f5f5; font-weight: 600; }
+    th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+    th.sortable:hover { background: #e8e8e8; }
+    .sort-ind { font-size: 0.7em; margin-left: 3px; color: #888; }
     .pass { color: #1a7f37; font-weight: 600; }
     .fail { color: #cf222e; font-weight: 600; }
     .regress { background: #fff8c5; }
@@ -26,7 +29,7 @@
 <p class="meta">
   Module: <strong>numops</strong> &nbsp;|&nbsp;
   Commit: <code>f3eeca32e971</code> &nbsp;|&nbsp;
-  Generated: 2026-05-22 15:00 UTC
+  Generated: 2026-05-22 15:04 UTC
 </p>
 
 
@@ -238,19 +241,25 @@
   <table>
     <thead>
       <tr>
-        <th>Parameters</th>
         
-        <th>original (ms)</th>
-        
-        <th>convolve (ms)</th>
-        
-        <th>cumsum (ms)</th>
-        
+          
+          <th class="sortable">size<span class="sort-ind"></span></th>
+          
+          <th class="sortable">window<span class="sort-ind"></span></th>
+          
         
         
-        <th>convolve speedup</th>
+        <th class="sortable">original (ms)<span class="sort-ind"></span></th>
         
-        <th>cumsum speedup</th>
+        <th class="sortable">convolve (ms)<span class="sort-ind"></span></th>
+        
+        <th class="sortable">cumsum (ms)<span class="sort-ind"></span></th>
+        
+        
+        
+        <th class="sortable">convolve speedup<span class="sort-ind"></span></th>
+        
+        <th class="sortable">cumsum speedup<span class="sort-ind"></span></th>
         
         
       </tr>
@@ -258,73 +267,97 @@
     <tbody>
     
       <tr>
-        <td><code>size=512, window=8</code></td>
         
-        <td>3.1100</td>
+          
+          <td>512</td>
+          
+          <td>8</td>
+          
+        
+        
+        <td>2.6870</td>
         
         <td>0.0060</td>
         
-        <td>0.0100</td>
+        <td>0.0090</td>
         
         
         
-        <td><span class="pass">518.33x</span></td>
+        <td><span class="pass">447.83x</span></td>
         
-        <td><span class="pass">311.00x</span></td>
-        
-        
-      </tr>
-    
-      <tr>
-        <td><code>size=512, window=64</code></td>
-        
-        <td>2.3590</td>
-        
-        <td>0.0120</td>
-        
-        <td>0.0100</td>
-        
-        
-        
-        <td><span class="pass">196.58x</span></td>
-        
-        <td><span class="pass">235.90x</span></td>
+        <td><span class="pass">298.56x</span></td>
         
         
       </tr>
     
       <tr>
-        <td><code>size=2048, window=8</code></td>
         
-        <td>10.9260</td>
+          
+          <td>512</td>
+          
+          <td>64</td>
+          
+        
+        
+        <td>2.3970</td>
+        
+        <td>0.0130</td>
+        
+        <td>0.0090</td>
+        
+        
+        
+        <td><span class="pass">184.38x</span></td>
+        
+        <td><span class="pass">266.33x</span></td>
+        
+        
+      </tr>
+    
+      <tr>
+        
+          
+          <td>2048</td>
+          
+          <td>8</td>
+          
+        
+        
+        <td>10.9340</td>
         
         <td>0.0080</td>
         
-        <td>0.0180</td>
+        <td>0.0150</td>
         
         
         
-        <td><span class="pass">1365.75x</span></td>
+        <td><span class="pass">1366.75x</span></td>
         
-        <td><span class="pass">607.00x</span></td>
+        <td><span class="pass">728.93x</span></td>
         
         
       </tr>
     
       <tr>
-        <td><code>size=2048, window=64</code></td>
         
-        <td>10.5800</td>
-        
-        <td>0.0350</td>
-        
-        <td>0.0180</td>
-        
+          
+          <td>2048</td>
+          
+          <td>64</td>
+          
         
         
-        <td><span class="pass">302.29x</span></td>
+        <td>10.6280</td>
         
-        <td><span class="pass">587.78x</span></td>
+        <td>0.0410</td>
+        
+        <td>0.0150</td>
+        
+        
+        
+        <td><span class="pass">259.22x</span></td>
+        
+        <td><span class="pass">708.53x</span></td>
         
         
       </tr>
@@ -341,15 +374,19 @@
   <table>
     <thead>
       <tr>
-        <th>Parameters</th>
         
-        <th>original (ms)</th>
-        
-        <th>numpy (ms)</th>
-        
+          
+          <th class="sortable">size<span class="sort-ind"></span></th>
+          
         
         
-        <th>numpy speedup</th>
+        <th class="sortable">original (ms)<span class="sort-ind"></span></th>
+        
+        <th class="sortable">numpy (ms)<span class="sort-ind"></span></th>
+        
+        
+        
+        <th class="sortable">numpy speedup<span class="sort-ind"></span></th>
         
         
       </tr>
@@ -357,25 +394,33 @@
     <tbody>
     
       <tr>
-        <td><code>size=1024</code></td>
+        
+          
+          <td>1024</td>
+          
+        
         
         <td>0.0040</td>
         
-        <td>0.0060</td>
+        <td>0.0030</td>
         
         
         
-        <td><span class="">0.67x</span></td>
+        <td><span class="pass">1.33x</span></td>
         
         
       </tr>
     
       <tr>
-        <td><code>size=4096</code></td>
         
-        <td>0.0050</td>
+          
+          <td>4096</td>
+          
         
-        <td>0.0050</td>
+        
+        <td>0.0060</td>
+        
+        <td>0.0060</td>
         
         
         
@@ -385,11 +430,15 @@
       </tr>
     
       <tr>
-        <td><code>size=16384</code></td>
         
-        <td>0.0130</td>
+          
+          <td>16384</td>
+          
         
-        <td>0.0130</td>
+        
+        <td>0.0170</td>
+        
+        <td>0.0170</td>
         
         
         
@@ -410,5 +459,35 @@
 
 
 
+<script>
+document.querySelectorAll('th.sortable').forEach(function(th) {
+  th.addEventListener('click', function() {
+    var table = th.closest('table');
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    var col = Array.from(th.parentNode.children).indexOf(th);
+    var asc = th.dataset.sortDir !== 'asc';
+
+    rows.sort(function(a, b) {
+      var av = a.cells[col].textContent.trim().replace(/x$/, '');
+      var bv = b.cells[col].textContent.trim().replace(/x$/, '');
+      if (av === '—') return 1;
+      if (bv === '—') return -1;
+      var an = parseFloat(av), bn = parseFloat(bv);
+      if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+
+    table.querySelectorAll('th.sortable').forEach(function(h) {
+      h.dataset.sortDir = '';
+      h.querySelector('.sort-ind').textContent = '';
+    });
+    th.dataset.sortDir = asc ? 'asc' : 'desc';
+    th.querySelector('.sort-ind').textContent = asc ? ' ▲' : ' ▼';
+
+    rows.forEach(function(r) { tbody.appendChild(r); });
+  });
+});
+</script>
 </body>
 </html>
