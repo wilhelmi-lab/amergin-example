@@ -1,27 +1,27 @@
 [
   {
-    "name": "moving_average_numpy/convolve",
+    "name": "moving_average/convolve",
     "unit": "ms",
     "value": 0.012
   },
   {
-    "name": "moving_average_numpy/cumsum",
+    "name": "moving_average/cumsum",
     "unit": "ms",
-    "value": 0.016
+    "value": 0.017
   },
   {
     "name": "moving_average/original",
     "unit": "ms",
-    "value": 7.794
+    "value": 11.6
   },
   {
     "name": "normalize/numpy",
     "unit": "ms",
-    "value": 0.003
+    "value": 0.005
   },
   {
     "name": "normalize/original",
     "unit": "ms",
-    "value": 0.003
+    "value": 0.006
   }
 ]
