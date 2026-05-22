@@ -21,5 +21,8 @@ packages = ["src/numops"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[tool.amergin.benchmark]
+[tool.amergin.benchmark.functions.normalize]
 parameters = {size = [64, 128, 256]}
+
+[tool.amergin.benchmark.functions.moving_average]
+parameters = {size = [512, 2048], window = [8, 64]}
