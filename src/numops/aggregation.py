@@ -7,13 +7,13 @@ import numpy as np
 import amergin
 
 
-@amergin.capability("numpy_convolve")
-def _detect_numpy_convolve() -> tuple[bool, dict[str, Any]]:
+@amergin.capability("convolve")
+def _detect_convolve() -> tuple[bool, dict[str, Any]]:
     return True, {}
 
 
-@amergin.capability("numpy_cumsum")
-def _detect_numpy_cumsum() -> tuple[bool, dict[str, Any]]:
+@amergin.capability("cumsum")
+def _detect_cumsum() -> tuple[bool, dict[str, Any]]:
     return True, {}
 
 
@@ -42,18 +42,14 @@ def filter_moving_average(params: dict[str, Any]) -> bool:
     return bool(window < size // 4)
 
 
-@amergin.alternative(
-    amergin.jit_backend, name="numpy_convolve", replaces="moving_average"
-)
+@amergin.alternative(amergin.jit_backend, name="convolve", replaces="moving_average")
 def moving_average_convolve(data: np.ndarray, window: int) -> np.ndarray:
     """np.convolve-based moving average."""
     kernel = np.ones(window) / window
     return np.convolve(data, kernel, mode="valid")
 
 
-@amergin.alternative(
-    amergin.jit_backend, name="numpy_cumsum", replaces="moving_average"
-)
+@amergin.alternative(amergin.jit_backend, name="cumsum", replaces="moving_average")
 def moving_average_cumsum(data: np.ndarray, window: int) -> np.ndarray:
     """O(n) cumsum-based moving average."""
     cs = np.cumsum(data)
