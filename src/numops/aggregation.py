@@ -23,7 +23,7 @@ def moving_average(data: np.ndarray, window: int) -> np.ndarray:
     n = len(data) - window + 1
     result = np.empty(n)
     for i in range(n):
-        result[i] = np.mean(data[i : i + window])
+        result[i] = np.mean(data[i:i + window])
     return result
 
 
@@ -37,19 +37,25 @@ def make_moving_average_inputs(
 
 @amergin.parameter_filter(for_function="moving_average")
 def filter_moving_average(params: dict[str, Any]) -> bool:
-    return bool(params["window"] < params["size"] // 4)
+    size = params.get("size", 1)
+    window = params.get("window", 0)
+    return bool(window < size // 4)
 
 
-@amergin.alternative(amergin.jit_backend, name="numpy_convolve", replaces="moving_average")
+@amergin.alternative(
+    amergin.jit_backend, name="numpy_convolve", replaces="moving_average"
+)
 def moving_average_convolve(data: np.ndarray, window: int) -> np.ndarray:
     """np.convolve-based moving average."""
     kernel = np.ones(window) / window
     return np.convolve(data, kernel, mode="valid")
 
 
-@amergin.alternative(amergin.jit_backend, name="numpy_cumsum", replaces="moving_average")
+@amergin.alternative(
+    amergin.jit_backend, name="numpy_cumsum", replaces="moving_average"
+)
 def moving_average_cumsum(data: np.ndarray, window: int) -> np.ndarray:
     """O(n) cumsum-based moving average."""
     cs = np.cumsum(data)
     cs[window:] = cs[window:] - cs[:-window]
-    return cs[window - 1 :] / window
+    return cs[window - 1:] / window
