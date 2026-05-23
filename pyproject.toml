@@ -29,3 +29,6 @@ parameters = {size = [512, 2048], window = [8, 64]}
 
 [tool.amergin.benchmark.functions.normalize_smoothed]
 parameters = {size = [1024, 4096], window = [8, 64]}
+
+[tool.amergin.benchmark.functions.clip_normalize]
+parameters = {size = [4096, 16384]}
