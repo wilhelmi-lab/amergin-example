@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>amergin report — numops @ 08d25f9ae7d8</title>
+  <title>amergin report — numops @ 315ab71d7651</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; color: #222; max-width: 1100px; }
     h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
@@ -22,6 +22,43 @@
     .meta { color: #666; font-size: 0.8rem; }
     img { max-width: 100%; margin-top: 0.5rem; }
     .badge { vertical-align: middle; }
+    /* Trend filter UI */
+    #trend-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1rem 0;
+      padding: 0.5rem 0.8rem;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      font-size: 0.85rem;
+    }
+    #trend-filters fieldset {
+      border: 1px solid #ccc;
+      padding: 0.4rem 0.6rem;
+      margin: 0;
+    }
+    #trend-filters legend { padding: 0 0.3rem; color: #555; }
+    #trend-filters label {
+      display: inline-block;
+      margin-right: 0.6rem;
+      cursor: pointer;
+    }
+    #machine-toggles label { font-family: ui-monospace, monospace; }
+    .trend-fn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 0.5rem 0 1.5rem;
+    }
+    .trend-fn-row > div {
+      min-width: 0;       /* let canvases shrink in narrow viewports */
+      max-width: 100%;
+    }
+    @media (max-width: 900px) {
+      .trend-fn-row { grid-template-columns: 1fr; }
+    }
+    .trend-empty { color: #888; font-style: italic; }
   </style>
 </head>
 <body>
@@ -29,8 +66,8 @@
 <h1>amergin report</h1>
 <p class="meta">
   Module: <strong>numops</strong> &nbsp;|&nbsp;
-  Commit: <code>08d25f9ae7d8</code> &nbsp;|&nbsp;
-  Generated: 2026-05-23 20:44 UTC
+  Commit: <code>315ab71d7651</code> &nbsp;|&nbsp;
+  Generated: 2026-05-26 14:38 UTC
 </p>
 
 
@@ -810,7 +847,7 @@
         
         <td>0.0120</td>
         
-        <td>8.8650</td>
+        <td>9.1480</td>
         
         
         
@@ -826,9 +863,9 @@
           
         
         
-        <td>0.0320</td>
+        <td>0.0360</td>
         
-        <td>55.7180</td>
+        <td>51.3510</td>
         
         
         
@@ -892,17 +929,17 @@
           
         
         
-        <td>2.9910</td>
+        <td>2.6870</td>
         
-        <td>0.0060</td>
+        <td>0.0090</td>
         
         <td>0.0100</td>
         
         
         
-        <td><span class="pass">498.50x</span></td>
+        <td><span class="pass">298.56x</span></td>
         
-        <td><span class="pass">299.10x</span></td>
+        <td><span class="pass">268.70x</span></td>
         
         
       </tr>
@@ -916,17 +953,17 @@
           
         
         
-        <td>2.6450</td>
+        <td>2.4560</td>
         
-        <td>0.0120</td>
+        <td>0.0130</td>
         
-        <td>0.0100</td>
+        <td>0.0090</td>
         
         
         
-        <td><span class="pass">220.42x</span></td>
+        <td><span class="pass">188.92x</span></td>
         
-        <td><span class="pass">264.50x</span></td>
+        <td><span class="pass">272.89x</span></td>
         
         
       </tr>
@@ -940,17 +977,17 @@
           
         
         
-        <td>11.9600</td>
+        <td>11.1180</td>
         
         <td>0.0090</td>
         
-        <td>0.0270</td>
+        <td>0.0180</td>
         
         
         
-        <td><span class="pass">1328.89x</span></td>
+        <td><span class="pass">1235.33x</span></td>
         
-        <td><span class="pass">442.96x</span></td>
+        <td><span class="pass">617.67x</span></td>
         
         
       </tr>
@@ -964,17 +1001,17 @@
           
         
         
-        <td>11.7730</td>
+        <td>10.6510</td>
         
-        <td>0.0350</td>
+        <td>0.0380</td>
         
-        <td>0.0170</td>
+        <td>0.0180</td>
         
         
         
-        <td><span class="pass">336.37x</span></td>
+        <td><span class="pass">280.29x</span></td>
         
-        <td><span class="pass">692.53x</span></td>
+        <td><span class="pass">591.72x</span></td>
         
         
       </tr>
@@ -1046,13 +1083,13 @@
           
         
         
-        <td>0.0050</td>
+        <td>0.0060</td>
         
         <td>0.0050</td>
         
         
         
-        <td><span class="">1.00x</span></td>
+        <td><span class="pass">1.20x</span></td>
         
         
       </tr>
@@ -1066,11 +1103,11 @@
         
         <td>0.0140</td>
         
-        <td>0.0130</td>
+        <td>0.0140</td>
         
         
         
-        <td><span class="pass">1.08x</span></td>
+        <td><span class="">1.00x</span></td>
         
         
       </tr>
@@ -1123,8 +1160,8 @@
         
         <td>numpy</td>
         
-        <td>0.0240</td>
-        <td><span class="pass">262.29x</span></td>
+        <td>0.0190</td>
+        <td><span class="pass">292.42x</span></td>
       </tr>
     
       <tr>
@@ -1138,8 +1175,8 @@
         
         <td>numpy</td>
         
-        <td>0.0390</td>
-        <td><span class="pass">148.51x</span></td>
+        <td>0.0330</td>
+        <td><span class="pass">156.61x</span></td>
       </tr>
     
       <tr>
@@ -1153,8 +1190,8 @@
         
         <td>numpy</td>
         
-        <td>0.0320</td>
-        <td><span class="pass">758.84x</span></td>
+        <td>0.0270</td>
+        <td><span class="pass">806.59x</span></td>
       </tr>
     
       <tr>
@@ -1168,8 +1205,8 @@
         
         <td>numpy</td>
         
-        <td>0.0900</td>
-        <td><span class="pass">264.98x</span></td>
+        <td>0.0860</td>
+        <td><span class="pass">260.99x</span></td>
       </tr>
     
       <tr>
@@ -1183,8 +1220,8 @@
         
         <td>original</td>
         
-        <td>0.0170</td>
-        <td><span class="pass">370.29x</span></td>
+        <td>0.0140</td>
+        <td><span class="pass">396.86x</span></td>
       </tr>
     
       <tr>
@@ -1199,7 +1236,7 @@
         <td>original</td>
         
         <td>0.0310</td>
-        <td><span class="pass">186.84x</span></td>
+        <td><span class="pass">166.71x</span></td>
       </tr>
     
       <tr>
@@ -1213,8 +1250,8 @@
         
         <td>original</td>
         
-        <td>0.0260</td>
-        <td><span class="pass">933.96x</span></td>
+        <td>0.0220</td>
+        <td><span class="pass">989.91x</span></td>
       </tr>
     
       <tr>
@@ -1229,7 +1266,7 @@
         <td>original</td>
         
         <td>0.0820</td>
-        <td><span class="pass">290.83x</span></td>
+        <td><span class="pass">273.72x</span></td>
       </tr>
     
       <tr>
@@ -1243,8 +1280,8 @@
         
         <td>numpy</td>
         
-        <td>0.0240</td>
-        <td><span class="pass">262.29x</span></td>
+        <td>0.0200</td>
+        <td><span class="pass">277.80x</span></td>
       </tr>
     
       <tr>
@@ -1258,8 +1295,8 @@
         
         <td>numpy</td>
         
-        <td>0.0240</td>
-        <td><span class="pass">241.33x</span></td>
+        <td>0.0210</td>
+        <td><span class="pass">246.10x</span></td>
       </tr>
     
       <tr>
@@ -1273,8 +1310,8 @@
         
         <td>numpy</td>
         
-        <td>0.0410</td>
-        <td><span class="pass">592.27x</span></td>
+        <td>0.0390</td>
+        <td><span class="pass">558.41x</span></td>
       </tr>
     
       <tr>
@@ -1288,8 +1325,8 @@
         
         <td>numpy</td>
         
-        <td>0.0410</td>
-        <td><span class="pass">581.66x</span></td>
+        <td>0.0380</td>
+        <td><span class="pass">590.66x</span></td>
       </tr>
     
       <tr>
@@ -1303,8 +1340,8 @@
         
         <td>original</td>
         
-        <td>0.0250</td>
-        <td><span class="pass">251.80x</span></td>
+        <td>0.0210</td>
+        <td><span class="pass">264.57x</span></td>
       </tr>
     
       <tr>
@@ -1318,8 +1355,8 @@
         
         <td>original</td>
         
-        <td>0.0250</td>
-        <td><span class="pass">231.68x</span></td>
+        <td>0.0200</td>
+        <td><span class="pass">258.40x</span></td>
       </tr>
     
       <tr>
@@ -1334,7 +1371,7 @@
         <td>original</td>
         
         <td>0.0400</td>
-        <td><span class="pass">607.08x</span></td>
+        <td><span class="pass">544.45x</span></td>
       </tr>
     
       <tr>
@@ -1348,8 +1385,8 @@
         
         <td>original</td>
         
-        <td>0.0400</td>
-        <td><span class="pass">596.20x</span></td>
+        <td>0.0380</td>
+        <td><span class="pass">590.66x</span></td>
       </tr>
     
       <tr>
@@ -1363,8 +1400,8 @@
         
         <td>numpy</td>
         
-        <td>6.0720</td>
-        <td><span class="pass">1.04x</span></td>
+        <td>5.4740</td>
+        <td><span class="pass">1.01x</span></td>
       </tr>
     
       <tr>
@@ -1378,7 +1415,7 @@
         
         <td>numpy</td>
         
-        <td>5.7570</td>
+        <td>5.1140</td>
         <td><span class="pass">1.01x</span></td>
       </tr>
     
@@ -1393,8 +1430,8 @@
         
         <td>numpy</td>
         
-        <td>24.7100</td>
-        <td><span class="">0.98x</span></td>
+        <td>21.7770</td>
+        <td><span class="">1.00x</span></td>
       </tr>
     
       <tr>
@@ -1408,8 +1445,8 @@
         
         <td>numpy</td>
         
-        <td>23.5920</td>
-        <td><span class="pass">1.01x</span></td>
+        <td>21.9320</td>
+        <td><span class="pass">1.02x</span></td>
       </tr>
     
       <tr>
@@ -1423,7 +1460,7 @@
         
         <td>original</td>
         
-        <td>6.2950</td>
+        <td>5.5560</td>
         <td><span class="">1.00x</span></td>
       </tr>
     
@@ -1438,7 +1475,7 @@
         
         <td>original</td>
         
-        <td>5.7920</td>
+        <td>5.1680</td>
         <td><span class="">1.00x</span></td>
       </tr>
     
@@ -1453,7 +1490,7 @@
         
         <td>original</td>
         
-        <td>24.2830</td>
+        <td>21.7780</td>
         <td><span class="">1.00x</span></td>
       </tr>
     
@@ -1468,7 +1505,7 @@
         
         <td>original</td>
         
-        <td>23.8480</td>
+        <td>22.4450</td>
         <td><span class="">1.00x</span></td>
       </tr>
     
@@ -1483,6 +1520,246 @@
   
 
 
+
+
+
+<h2>Cross-run trends</h2>
+<p class="meta">
+  Performance and correctness across every run on disk, filtered by the
+  controls below. Repo-level filters (<code>[tool.amergin.history]</code>)
+  apply before this page even loads.
+</p>
+
+<div id="trend-filters">
+  <fieldset>
+    <legend>Machines</legend>
+    <div id="machine-toggles"></div>
+  </fieldset>
+  <fieldset>
+    <legend>Date range</legend>
+    <label>From <input type="date" id="date-from"></label>
+    <label>To <input type="date" id="date-to"></label>
+  </fieldset>
+  <fieldset>
+    <legend>X axis</legend>
+    <label><input type="radio" name="x-mode" value="real" checked> Real time</label>
+    <label><input type="radio" name="x-mode" value="event"> Event-indexed</label>
+  </fieldset>
+  <fieldset>
+    <legend>Showing</legend>
+    <span id="trend-count" class="meta"></span>
+  </fieldset>
+</div>
+
+<div id="trend-charts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script id="trend-data" type="application/json">
+{"summaries": [{"timestamp": "2026-05-26T14-38-41Z", "machine_id": "afc7955e44e3700f", "source_hash": "315ab71d7651", "results": [{"fn": "clip_normalize", "backend": "original", "median": 0.012, "atol_max": null}, {"fn": "clip_normalize", "backend": "original", "median": 0.036, "atol_max": null}, {"fn": "clip_normalize", "backend": "original__no_fast_clip", "median": 9.148, "atol_max": 0.0}, {"fn": "clip_normalize", "backend": "original__no_fast_clip", "median": 51.351, "atol_max": 0.0}, {"fn": "moving_average", "backend": "convolve", "median": 0.009, "atol_max": 2.220446049250313e-16}, {"fn": "moving_average", "backend": "convolve", "median": 0.013, "atol_max": 2.220446049250313e-16}, {"fn": "moving_average", "backend": "convolve", "median": 0.009, "atol_max": 2.220446049250313e-16}, {"fn": "moving_average", "backend": "convolve", "median": 0.038, "atol_max": 2.220446049250313e-16}, {"fn": "moving_average", "backend": "cumsum", "median": 0.01, "atol_max": 7.827072323607354e-15}, {"fn": "moving_average", "backend": "cumsum", "median": 0.009, "atol_max": 2.9976021664879227e-15}, {"fn": "moving_average", "backend": "cumsum", "median": 0.018, "atol_max": 2.9976021664879227e-14}, {"fn": "moving_average", "backend": "cumsum", "median": 0.018, "atol_max": 7.605027718682322e-15}, {"fn": "moving_average", "backend": "original", "median": 2.687, "atol_max": null}, {"fn": "moving_average", "backend": "original", "median": 2.456, "atol_max": null}, {"fn": "moving_average", "backend": "original", "median": 11.118, "atol_max": null}, {"fn": "moving_average", "backend": "original", "median": 10.651, "atol_max": null}, {"fn": "normalize", "backend": "numpy", "median": 0.003, "atol_max": 0.0}, {"fn": "normalize", "backend": "numpy", "median": 0.005, "atol_max": 0.0}, {"fn": "normalize", "backend": "numpy", "median": 0.014, "atol_max": 0.0}, {"fn": "normalize", "backend": "original", "median": 0.004, "atol_max": null}, {"fn": "normalize", "backend": "original", "median": 0.006, "atol_max": null}, {"fn": "normalize", "backend": "original", "median": 0.014, "atol_max": null}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=numpy", "median": 0.019, "atol_max": 1.3877787807814457e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=numpy", "median": 0.033, "atol_max": 2.0816681711721685e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=numpy", "median": 0.027, "atol_max": 1.0408340855860843e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=numpy", "median": 0.086, "atol_max": 6.938893903907228e-18}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=original", "median": 0.014, "atol_max": 1.3877787807814457e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=original", "median": 0.031, "atol_max": 2.0816681711721685e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=original", "median": 0.022, "atol_max": 1.0408340855860843e-17}, {"fn": "normalize_smoothed", "backend": "moving_average=convolve+normalize=original", "median": 0.082, "atol_max": 6.938893903907228e-18}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=numpy", "median": 0.02, "atol_max": 1.1657341758564144e-15}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=numpy", "median": 0.021, "atol_max": 3.608224830031759e-16}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=numpy", "median": 0.039, "atol_max": 2.473715676742927e-15}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=numpy", "median": 0.038, "atol_max": 7.129713486264677e-16}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=original", "median": 0.021, "atol_max": 1.1657341758564144e-15}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=original", "median": 0.02, "atol_max": 3.608224830031759e-16}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=original", "median": 0.04, "atol_max": 2.473715676742927e-15}, {"fn": "normalize_smoothed", "backend": "moving_average=cumsum+normalize=original", "median": 0.038, "atol_max": 7.129713486264677e-16}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=numpy", "median": 5.474, "atol_max": 0.0}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=numpy", "median": 5.114, "atol_max": 0.0}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=numpy", "median": 21.777, "atol_max": 0.0}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=numpy", "median": 21.932, "atol_max": 0.0}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=original", "median": 5.556, "atol_max": null}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=original", "median": 5.168, "atol_max": null}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=original", "median": 21.778, "atol_max": null}, {"fn": "normalize_smoothed", "backend": "moving_average=original+normalize=original", "median": 22.445, "atol_max": null}]}], "machines": ["afc7955e44e3700f"], "fn_atol": {"moving_average": 1e-10, "clip_normalize": 1e-06, "normalize": 1e-06, "normalize_smoothed": null}, "fn_names": ["clip_normalize", "moving_average", "normalize", "normalize_smoothed"], "timestamps": ["2026-05-26T14-38-41Z"]}
+</script>
+<script>
+(function() {
+  const root = document.getElementById('trend-charts');
+  if (!window.Chart) {
+    root.innerHTML = '<p class="trend-empty">Chart.js failed to load — interactive trends disabled. Static history PNGs (per function) still available below.</p>';
+    return;
+  }
+  const DATA = JSON.parse(document.getElementById('trend-data').textContent);
+  const COLORS = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+  ];
+
+  // ── Filter state ─────────────────────────────────────────────────────────
+  const state = {
+    machines: new Set(DATA.machines),
+    dateFrom: null,
+    dateTo: null,
+    xMode: 'real',
+  };
+
+  // ── Build filter UI ──────────────────────────────────────────────────────
+  const mt = document.getElementById('machine-toggles');
+  DATA.machines.forEach(function(m) {
+    const lbl = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = true;
+    cb.addEventListener('change', function() {
+      if (cb.checked) state.machines.add(m);
+      else state.machines.delete(m);
+      redraw();
+    });
+    const short = m.length > 16 ? m.slice(0, 12) + '…' : m;
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(' ' + short));
+    lbl.title = m;
+    mt.appendChild(lbl);
+  });
+
+  document.getElementById('date-from').addEventListener('change', function(e) {
+    state.dateFrom = e.target.value || null;
+    redraw();
+  });
+  document.getElementById('date-to').addEventListener('change', function(e) {
+    state.dateTo = e.target.value || null;
+    redraw();
+  });
+  document.querySelectorAll('input[name="x-mode"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      if (r.checked) { state.xMode = r.value; redraw(); }
+    });
+  });
+
+  // ── Filtering ────────────────────────────────────────────────────────────
+  function filterRuns() {
+    return DATA.summaries.filter(function(s) {
+      if (!state.machines.has(s.machine_id)) return false;
+      if (state.dateFrom && s.timestamp.slice(0, 10) < state.dateFrom) return false;
+      if (state.dateTo && s.timestamp.slice(0, 10) > state.dateTo) return false;
+      return true;
+    });
+  }
+
+  // ── Aggregation ──────────────────────────────────────────────────────────
+  // Returns {labels, datasets} for a given fn, field (median|atol_max).
+  function aggregate(runs, fn, field) {
+    // bucket[backend][ts] = list of values
+    const buckets = {};
+    runs.forEach(function(s) {
+      s.results.forEach(function(r) {
+        if (r.fn !== fn) return;
+        const v = r[field];
+        if (v == null) return;
+        if (!buckets[r.backend]) buckets[r.backend] = {};
+        if (!buckets[r.backend][s.timestamp]) buckets[r.backend][s.timestamp] = [];
+        buckets[r.backend][s.timestamp].push(v);
+      });
+    });
+    // For field=median we take the median across params; for atol_max the max.
+    function reduce(vals) {
+      if (field === 'atol_max') return Math.max.apply(null, vals);
+      const sorted = vals.slice().sort(function(a, b) { return a - b; });
+      return sorted[Math.floor(sorted.length / 2)];
+    }
+    const tsSet = {};
+    Object.values(buckets).forEach(function(byTs) {
+      Object.keys(byTs).forEach(function(t) { tsSet[t] = true; });
+    });
+    const allTs = Object.keys(tsSet).sort();
+    const labels = state.xMode === 'event'
+      ? allTs.map(function(_, i) { return '#' + (i + 1); })
+      : allTs.map(function(t) { return t.replace('Z', ''); });
+    const datasets = Object.keys(buckets).sort().map(function(backend, i) {
+      const byTs = buckets[backend];
+      return {
+        label: backend,
+        data: allTs.map(function(t) {
+          return byTs[t] ? reduce(byTs[t]) : null;
+        }),
+        spanGaps: true,
+        borderColor: COLORS[i % COLORS.length],
+        backgroundColor: COLORS[i % COLORS.length],
+        tension: 0.1,
+        pointRadius: 4,
+      };
+    });
+    return { labels: labels, datasets: datasets, runCount: allTs.length };
+  }
+
+  // ── Rendering ────────────────────────────────────────────────────────────
+  const charts = {};
+  function makeOrUpdate(id, config) {
+    if (charts[id]) {
+      charts[id].data = config.data;
+      charts[id].options = config.options;
+      charts[id].update();
+      return;
+    }
+    const canvas = document.getElementById(id);
+    if (canvas) {
+      charts[id] = new Chart(canvas, config);
+    }
+  }
+
+  function buildFnRow(fn) {
+    const row = document.createElement('div');
+    row.className = 'trend-fn-row';
+    row.id = 'fn_' + fn;
+    row.innerHTML = '\
+      <div><h3 style="margin:0 0 0.3rem">' + fn + ' — performance</h3>\
+        <canvas id="hist_' + fn + '" height="180"></canvas></div>\
+      <div><h3 style="margin:0 0 0.3rem">' + fn + ' — correctness</h3>\
+        <canvas id="corr_' + fn + '" height="180"></canvas></div>';
+    root.appendChild(row);
+  }
+
+  DATA.fn_names.forEach(buildFnRow);
+
+  function redraw() {
+    const runs = filterRuns();
+    document.getElementById('trend-count').textContent =
+      runs.length + ' run' + (runs.length === 1 ? '' : 's') +
+      ' across ' + state.machines.size +
+      ' machine' + (state.machines.size === 1 ? '' : 's');
+
+    DATA.fn_names.forEach(function(fn) {
+      const perf = aggregate(runs, fn, 'median');
+      const corr = aggregate(runs, fn, 'atol_max');
+      const atol = DATA.fn_atol[fn];
+
+      makeOrUpdate('hist_' + fn, {
+        type: 'line',
+        data: perf,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'nearest' },
+          scales: {
+            y: { type: 'logarithmic', title: { display: true, text: 'median execution_ms' } },
+            x: { ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+          },
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: { mode: 'index', intersect: false },
+          },
+        },
+      });
+
+      makeOrUpdate('corr_' + fn, {
+        type: 'line',
+        data: corr,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { type: 'logarithmic', title: { display: true, text: '|diff| from baseline' } },
+            x: { ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+          },
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: { mode: 'index', intersect: false },
+            annotation: atol ? {
+              annotations: {
+                atolLine: {
+                  type: 'line', yMin: atol, yMax: atol,
+                  borderColor: '#cf222e', borderWidth: 1, borderDash: [4, 4],
+                  label: { content: 'atol = ' + atol, display: true, position: 'end' },
+                },
+              },
+            } : {},
+          },
+          // Override line/scatter blend for correctness: dots only, no
+          // line connecting them — variance over time is what matters.
+          datasets: { line: { showLine: false, pointRadius: 5 } },
+        },
+      });
+    });
+  }
+
+  redraw();
+})();
+</script>
 
 
 
