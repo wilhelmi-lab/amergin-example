@@ -87,3 +87,86 @@ jobs:
           done
           echo "Push failed after retries"
           exit 1
+
+  publish-data-cuda:
+    # GPU sibling of publish-data. Runs on the self-hosted devbox
+    # inside an NVIDIA CUDA container; produces a separate machine
+    # bucket in the data repo (devbox-cuda-rtx4090 by default).
+    #
+    # GUARDS:
+    #   - Triggered only on push to main / workflow_dispatch (never
+    #     pull_request, which would let any fork PR execute on the
+    #     box).
+    #   - Gated on the 'gpu-devbox' Environment. Configure required
+    #     reviewers under Settings → Environments so each GPU run
+    #     waits for a maintainer's Approve click.
+    #   - Concurrency block prevents two simultaneous GPU pushes.
+    #
+    # RUNNER PREREQS (set up once on the box):
+    #   - GitHub self-hosted runner registered with labels
+    #     [self-hosted, devbox, cuda]
+    #   - Docker + NVIDIA Container Toolkit installed
+    #   - Network access to ghcr.io and github.com
+    #
+    # To extend for ROCm or Intel XPU: copy this job, change the
+    # container image, the --gpus flags, the runs-on label, and the
+    # AMERGIN_MACHINE_LABEL.
+    name: "publish benchmark data + report (cuda)"
+    needs: test
+    runs-on: [self-hosted, devbox, cuda]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment: gpu-devbox
+    concurrency:
+      group: publish-data-cuda-${{ github.ref }}
+      cancel-in-progress: false
+    container:
+      image: nvidia/cuda:12.3.0-cudnn9-devel-ubuntu22.04
+      options: --gpus all
+    steps:
+      - name: Install system deps inside container
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends \
+            python3 python3-pip python3-venv git ca-certificates
+      - name: Checkout amergin-example
+        uses: actions/checkout@v4
+      - name: Checkout amergin-example-data
+        uses: actions/checkout@v4
+        with:
+          repository: wilhelmi-lab/amergin-example-data
+          path: data-repo
+          token: ${{ secrets.DATA_REPO_TOKEN }}
+      - name: Install amergin + numops + cupy
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+          python3 -m pip install -e .
+          # cupy-cuda12x ships pre-built wheels; matches CUDA 12.x base image
+          python3 -m pip install cupy-cuda12x
+      - name: Run benchmark + verify + evaluate
+        env:
+          AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
+          AMERGIN_MACHINE_LABEL: devbox-cuda
+        run: python3 -m amergin run --steps benchmark,verify,evaluate
+      - name: Commit + push to amergin-example-data
+        working-directory: data-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The container's git doesn't trust the bind-mounted workspace
+          # by default (different UID); make it explicit so add/commit work.
+          git config --global --add safe.directory "$(pwd)"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No new data to commit."
+            exit 0
+          fi
+          git commit -m "ci(cuda): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          for i in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "Push rejected (attempt $i/3); rebasing on remote main"
+            git fetch origin
+            git rebase -X ours origin/main
+          done
+          echo "Push failed after retries"
+          exit 1
