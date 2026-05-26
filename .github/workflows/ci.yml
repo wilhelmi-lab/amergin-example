@@ -27,15 +27,24 @@ jobs:
       # GPU alternatives (normalize_cupy) register but fall back to original on CPU runner
       - run: pytest tests/ -v
 
-  pages:
-    name: "deploy report to GitHub Pages"
+  publish-data:
+    # Append this run's benchmark output to the sibling data repo and
+    # let its GitHub Pages site re-deploy automatically. The benchmark
+    # itself runs against this repo's checkout; AMERGIN_STORAGE points
+    # at the data-repo checkout so writes land directly inside it.
+    name: "publish benchmark data + report"
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    permissions:
-      contents: write
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout amergin-example
+        uses: actions/checkout@v4
+      - name: Checkout amergin-example-data
+        uses: actions/checkout@v4
+        with:
+          repository: wilhelmi-lab/amergin-example-data
+          path: data-repo
+          token: ${{ secrets.DATA_REPO_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -43,14 +52,19 @@ jobs:
         run: pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
       - run: pip install -e .
       - name: Run benchmark + verify + evaluate
+        env:
+          AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
+          AMERGIN_MACHINE_LABEL: github-ubuntu-cpu
         run: amergin run --steps benchmark,verify,evaluate
-      - name: Collect report
+      - name: Commit + push to amergin-example-data
+        working-directory: data-repo
         run: |
-          report_dir=$(find ./benchmark-data -maxdepth 3 -name "index.html" | head -1 | xargs dirname)
-          mkdir -p ./pages
-          cp -r "$report_dir"/. ./pages/
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No new data to commit."
+          else
+            git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+            git push
+          fi
