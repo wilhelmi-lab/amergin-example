@@ -32,10 +32,17 @@ jobs:
     # let its GitHub Pages site re-deploy automatically. The benchmark
     # itself runs against this repo's checkout; AMERGIN_STORAGE points
     # at the data-repo checkout so writes land directly inside it.
+    #
+    # Concurrency block serializes runs so that the push-triggered job
+    # and the workflow_dispatch-triggered job (from amergin's CI) can't
+    # race each other to push competing commits to the data repo.
     name: "publish benchmark data + report"
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    concurrency:
+      group: publish-data-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - name: Checkout amergin-example
         uses: actions/checkout@v4
@@ -64,7 +71,19 @@ jobs:
           git add .
           if git diff --staged --quiet; then
             echo "No new data to commit."
-          else
-            git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
-            git push
+            exit 0
           fi
+          git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          # Belt-and-suspenders for a concurrent push (manual commit
+          # or a serialized-but-still-racey second job): pull --rebase
+          # keeping our changes on any conflict (report/* is the only
+          # thing that overlaps; our newer report is always correct),
+          # then retry the push a few times.
+          for i in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "Push rejected (attempt $i/3); rebasing on remote main"
+            git fetch origin
+            git rebase -X ours origin/main
+          done
+          echo "Push failed after retries"
+          exit 1
