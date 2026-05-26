@@ -30,10 +30,16 @@ def test_run_benchmark_verify(tmp_path: Path) -> None:
         f"Command failed.\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
     )
 
+    # New layout: results.json lives at
+    # benchmark-data/{source}/{machine}/{timestamp}/verify/results.json
     results_files = list(
-        (tmp_path / "benchmark-data").glob("*/verify/results.json")
+        (tmp_path / "benchmark-data").glob(
+            "*/*/*/verify/results.json"
+        )
     )
-    assert len(results_files) == 1, "results.json not found"
+    assert len(results_files) == 1, (
+        f"results.json not found. STDOUT:\n{result.stdout}"
+    )
 
     results = json.loads(results_files[0].read_text())
 

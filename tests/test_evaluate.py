@@ -35,12 +35,11 @@ def test_run_all_steps_produces_report(tmp_path: Path) -> None:
         f"Command failed.\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
     )
 
-    report_dirs = list((tmp_path / "benchmark-data").glob("*/report"))
-    assert len(report_dirs) == 1, "report/ directory not found"
-
-    report_dir = report_dirs[0]
+    # Aggregated report lives at benchmark-data/report/ in the new layout.
+    report_dir = tmp_path / "benchmark-data" / "report"
     html_path = report_dir / "index.html"
     badge_path = report_dir / "badge.json"
+    assert report_dir.exists(), "report/ directory not found"
 
     assert html_path.exists(), "index.html not produced"
     assert badge_path.exists(), "badge.json not produced"
