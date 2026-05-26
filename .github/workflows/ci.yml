@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
   pull_request:
+  # Allows amergin's CI to remotely trigger this workflow after a push
+  # to amergin@main, so a change there is exercised end-to-end here.
+  workflow_dispatch:
 
 jobs:
   test:
