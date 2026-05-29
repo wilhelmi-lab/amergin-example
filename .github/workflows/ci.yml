@@ -104,20 +104,23 @@ jobs:
     #
     # RUNNER PREREQS (set up once on the box):
     #   - GitHub self-hosted runner registered with labels
-    #     [self-hosted, devbox, cuda]
+    #     [self-hosted, devbox, nvidia]  (and amd/intel if the same
+    #     box also hosts those GPUs — labels are just intent tags;
+    #     a single runner can carry all three)
     #   - Docker + NVIDIA Container Toolkit installed
     #   - Network access to ghcr.io and github.com
     #
     # To extend for ROCm or Intel XPU: copy this job, change the
-    # container image, the --gpus flags, the runs-on label, and the
+    # container image, the --gpus / --device flags, the vendor
+    # label in runs-on (nvidia → amd / intel), and the
     # AMERGIN_MACHINE_LABEL.
-    name: "publish benchmark data + report (cuda)"
+    name: "publish benchmark data + report (nvidia)"
     needs: test
-    runs-on: [self-hosted, devbox, cuda]
+    runs-on: [self-hosted, devbox, nvidia]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment: gpu-devbox
     concurrency:
-      group: publish-data-cuda-${{ github.ref }}
+      group: publish-data-nvidia-${{ github.ref }}
       cancel-in-progress: false
     container:
       image: nvidia/cuda:12.3.0-cudnn9-devel-ubuntu22.04
@@ -146,7 +149,7 @@ jobs:
       - name: Run benchmark + verify + evaluate
         env:
           AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
-          AMERGIN_MACHINE_LABEL: devbox-cuda
+          AMERGIN_MACHINE_LABEL: devbox-nvidia
         run: python3 -m amergin run --steps benchmark,verify,evaluate
       - name: Commit + push to amergin-example-data
         working-directory: data-repo
@@ -161,7 +164,7 @@ jobs:
             echo "No new data to commit."
             exit 0
           fi
-          git commit -m "ci(cuda): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          git commit -m "ci(nvidia): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
           for i in 1 2 3; do
             if git push; then exit 0; fi
             echo "Push rejected (attempt $i/3); rebasing on remote main"
