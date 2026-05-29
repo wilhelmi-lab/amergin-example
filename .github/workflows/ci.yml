@@ -43,6 +43,14 @@ jobs:
     concurrency:
       group: publish-data-${{ github.ref }}
       cancel-in-progress: false
+    defaults:
+      # Pin bash so the commit step's ${GITHUB_SHA::8} substring
+      # expansion works the same way the nvidia job needs (where the
+      # default shell inside the container is sh→dash, which rejects
+      # bash-isms). On ubuntu-latest this is the default but spelling
+      # it out keeps the two publish jobs symmetric.
+      run:
+        shell: bash
     steps:
       - name: Checkout amergin-example
         uses: actions/checkout@v4
@@ -134,6 +142,14 @@ jobs:
       # variants. The asustest04 host has driver 575.57.08 → max CUDA 12.9.
       image: nvidia/cuda:12.9.2-runtime-ubuntu22.04
       options: --gpus all
+    defaults:
+      # Inside the container, the runner defaults to sh→dash (Ubuntu's
+      # /bin/sh). That breaks any bash-ism — the commit step's
+      # ${GITHUB_SHA::8} substring expansion was the first to surface.
+      # Pin bash for every run-block in this job; it's in Ubuntu's base
+      # layer so it's already present in the nvidia/cuda image.
+      run:
+        shell: bash
     env:
       # Belt-and-suspenders: the nvidia/cuda image is usually
       # preconfigured noninteractive, but tzdata / ca-certificates have
