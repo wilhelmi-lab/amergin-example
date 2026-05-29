@@ -74,24 +74,26 @@ jobs:
             exit 0
           fi
           git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
-          # Belt-and-suspenders for a concurrent push (manual commit
-          # or a serialized-but-still-racey second job): pull --rebase
-          # keeping our changes on any conflict (report/* is the only
-          # thing that overlaps; our newer report is always correct),
-          # then retry the push a few times.
+          # Belt-and-suspenders for a concurrent push: rebase keeping
+          # OUR side on conflict (the new run's report is always the
+          # correct one). NB: during rebase git's perspective is
+          # inverted — `theirs` refers to commits being replayed (our
+          # new data), `ours` to the branch we're rebasing onto
+          # (origin/main). So `-X theirs` here means "keep our new
+          # commit's files".
           for i in 1 2 3; do
             if git push; then exit 0; fi
             echo "Push rejected (attempt $i/3); rebasing on remote main"
             git fetch origin
-            git rebase -X ours origin/main
+            git rebase -X theirs origin/main
           done
           echo "Push failed after retries"
           exit 1
 
-  publish-data-cuda:
+  publish-data-nvidia:
     # GPU sibling of publish-data. Runs on the self-hosted devbox
     # inside an NVIDIA CUDA container; produces a separate machine
-    # bucket in the data repo (devbox-cuda-rtx4090 by default).
+    # bucket in the data repo (devbox-nvidia).
     #
     # GUARDS:
     #   - Triggered only on push to main / workflow_dispatch (never
@@ -107,8 +109,12 @@ jobs:
     #     [self-hosted, devbox, nvidia]  (and amd/intel if the same
     #     box also hosts those GPUs — labels are just intent tags;
     #     a single runner can carry all three)
-    #   - Docker + NVIDIA Container Toolkit installed
-    #   - Network access to ghcr.io and github.com
+    #   - Docker installed
+    #   - NVIDIA Container Toolkit installed and Docker configured:
+    #       sudo apt-get install -y nvidia-container-toolkit
+    #       sudo nvidia-ctk runtime configure --runtime=docker
+    #       sudo systemctl restart docker
+    #   - Network access to github.com, pypi.org, and Docker Hub
     #
     # To extend for ROCm or Intel XPU: copy this job, change the
     # container image, the --gpus / --device flags, the vendor
@@ -123,14 +129,37 @@ jobs:
       group: publish-data-nvidia-${{ github.ref }}
       cancel-in-progress: false
     container:
-      image: nvidia/cuda:12.3.0-cudnn9-devel-ubuntu22.04
+      # CUDA 12.9 runtime is the latest in-band with driver 575.x. cupy-cuda12x
+      # ships its own pre-built kernels, so we don't need the cudnn or devel
+      # variants. The asustest04 host has driver 575.57.08 → max CUDA 12.9.
+      image: nvidia/cuda:12.9.2-runtime-ubuntu22.04
       options: --gpus all
+    env:
+      # Belt-and-suspenders: the nvidia/cuda image is usually
+      # preconfigured noninteractive, but tzdata / ca-certificates have
+      # been known to prompt and hang a CI job to its 6h timeout.
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Install system deps inside container
         run: |
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends \
             python3 python3-pip python3-venv git ca-certificates
+          git --version
+      - name: GPU passthrough smoke test
+        # Fails fast with a readable error if `--gpus all` didn't actually
+        # plumb the device into the container — i.e., if the NVIDIA
+        # Container Toolkit isn't installed on the runner host. Without
+        # this, a misconfigured runner produces a confusing failure deep
+        # in cupy instead of a clear "no GPU visible" message here.
+        run: |
+          nvidia-smi
+          python3 -c "import ctypes; ctypes.CDLL('libcuda.so.1')"
+      - name: Trust git in any bind-mounted workspace
+        # Container runs as root but the workspace is owned by the
+        # runner's host UID — git refuses to operate on it otherwise.
+        # Wildcard is safe inside an ephemeral container.
+        run: git config --global --add safe.directory '*'
       - name: Checkout amergin-example
         uses: actions/checkout@v4
       - name: Checkout amergin-example-data
@@ -141,11 +170,19 @@ jobs:
           token: ${{ secrets.DATA_REPO_TOKEN }}
       - name: Install amergin + numops + cupy
         run: |
-          python3 -m pip install --upgrade pip
+          # NB: not upgrading pip — Ubuntu 22.04's pip 22.0.2 handles
+          # modern wheels (including cupy-cuda12x) fine, and upgrading
+          # in place leaves a half-broken pip launcher on some images.
           python3 -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
           python3 -m pip install -e .
-          # cupy-cuda12x ships pre-built wheels; matches CUDA 12.x base image
+          # cupy-cuda12x ships pre-built kernels for any CUDA 12.x runtime.
           python3 -m pip install cupy-cuda12x
+      - name: Verify cupy sees the GPU
+        # cupy lazy-loads CUDA at first device op — bare `import cupy`
+        # succeeds even with no GPU. Probe the device count so we fail
+        # here with a clear message instead of mid-benchmark.
+        run: |
+          python3 -c "import cupy; n = cupy.cuda.runtime.getDeviceCount(); assert n > 0, 'cupy reports 0 GPUs'; print(f'cupy sees {n} device(s)'); print(cupy.cuda.runtime.getDeviceProperties(0))"
       - name: Run benchmark + verify + evaluate
         env:
           AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
@@ -156,20 +193,23 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # The container's git doesn't trust the bind-mounted workspace
-          # by default (different UID); make it explicit so add/commit work.
-          git config --global --add safe.directory "$(pwd)"
           git add .
           if git diff --staged --quiet; then
             echo "No new data to commit."
             exit 0
           fi
           git commit -m "ci(nvidia): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          # Rebase note: during a rebase `theirs` refers to commits
+          # being replayed (our new data), `ours` to the branch we're
+          # rebasing onto (origin/main). So `-X theirs` here means
+          # "keep our new commit's files on conflict" — which is what
+          # we want since report/* is the only thing that can clash
+          # and our latest report is the correct one.
           for i in 1 2 3; do
             if git push; then exit 0; fi
             echo "Push rejected (attempt $i/3); rebasing on remote main"
             git fetch origin
-            git rebase -X ours origin/main
+            git rebase -X theirs origin/main
           done
           echo "Push failed after retries"
           exit 1
