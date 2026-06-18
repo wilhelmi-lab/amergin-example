@@ -7,16 +7,6 @@ import numpy as np
 import amergin
 
 
-@amergin.capability("convolve")
-def _detect_convolve() -> tuple[bool, dict[str, Any]]:
-    return True, {}
-
-
-@amergin.capability("cumsum")
-def _detect_cumsum() -> tuple[bool, dict[str, Any]]:
-    return True, {}
-
-
 @amergin.original("moving_average", atol=1e-10)
 def moving_average(data: np.ndarray, window: int) -> np.ndarray:
     """Naive loop-based moving average (intentionally slow baseline)."""
@@ -42,14 +32,27 @@ def filter_moving_average(params: dict[str, Any]) -> bool:
     return bool(window < size // 4)
 
 
-@amergin.alternative(amergin.jit_backend, name="convolve", replaces="moving_average")
+# Both alternatives are pure numpy, so implementation="numpy" makes them
+# detected as available (and synced as numpy) without needing a dummy
+# @capability detector — `name` stays a descriptive label.
+@amergin.alternative(
+    amergin.jit_backend,
+    name="convolve",
+    replaces="moving_average",
+    implementation="numpy",
+)
 def moving_average_convolve(data: np.ndarray, window: int) -> np.ndarray:
     """np.convolve-based moving average."""
     kernel = np.ones(window) / window
     return np.convolve(data, kernel, mode="valid")
 
 
-@amergin.alternative(amergin.jit_backend, name="cumsum", replaces="moving_average")
+@amergin.alternative(
+    amergin.jit_backend,
+    name="cumsum",
+    replaces="moving_average",
+    implementation="numpy",
+)
 def moving_average_cumsum(data: np.ndarray, window: int) -> np.ndarray:
     """O(n) cumsum-based moving average."""
     cs = np.cumsum(data)
