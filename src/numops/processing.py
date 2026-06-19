@@ -26,10 +26,39 @@ def normalize_dotprod(data: np.ndarray) -> np.ndarray:
     return data / norm
 
 
-# Tier 2b: GPU alternative — skipped on CPU-only runners.
-@amergin.alternative(amergin.gpu_backend, name="cupy", replaces="normalize")
+# Tier 2b: NVIDIA-only GPU alternative. `device="nvidia"` means it is
+# cleanly skipped (not crashed) on AMD/Intel/CPU machines, and the report
+# files it under the nvidia device.
+@amergin.alternative(
+    amergin.gpu_backend, name="cupy", replaces="normalize",
+    implementation="cupy", device="nvidia",
+)
 def normalize_cupy(data: np.ndarray) -> np.ndarray:
     import cupy as cp  # type: ignore[import-untyped]
 
     data_gpu = cp.asarray(data)
     return cp.asnumpy(data_gpu / cp.linalg.norm(data_gpu))
+
+
+# Tier 2c: device-agnostic GPU alternative. ONE torch code path runs on
+# every GPU vendor — CUDA (NVIDIA), HIP/ROCm (AMD, which torch also calls
+# "cuda"), and XPU (Intel) — falling back to CPU where no GPU is present.
+# No `device=` requirement, so it runs everywhere torch imports; the
+# machine bucket + recorded device distinguish where it ran. This is what
+# makes "the same benchmark runs on all three GPUs" true with one call.
+@amergin.alternative(
+    amergin.gpu_backend, name="torch", replaces="normalize",
+    implementation="torch",
+)
+def normalize_torch(data: np.ndarray) -> np.ndarray:
+    import torch  # type: ignore[import-untyped]
+
+    if torch.cuda.is_available():            # NVIDIA CUDA or AMD ROCm/HIP
+        device = "cuda"
+    elif getattr(torch, "xpu", None) is not None and torch.xpu.is_available():
+        device = "xpu"                        # Intel GPU
+    else:
+        device = "cpu"
+    t = torch.as_tensor(data, device=device)
+    out = t / torch.linalg.norm(t)
+    return out.detach().cpu().numpy()

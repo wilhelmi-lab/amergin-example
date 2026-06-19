@@ -32,3 +32,13 @@ parameters = {size = [1024, 4096], window = [8, 64]}
 
 [tool.amergin.benchmark.functions.clip_normalize]
 parameters = {size = [4096, 16384]}
+
+# Environment catalog. nvidia + intel come straight from amergin's
+# built-in defaults (out-of-the-box images). Only AMD is customized here:
+# we pin an older ROCm 6.x / Ubuntu 22.04 / py3.10 image to demonstrate
+# overriding a single field of a built-in (run_flags / hardware /
+# machine_label are inherited). Override any other field the same way, or
+# add a new environment under a new name.
+[tool.amergin.environments.amd]
+image = "rocm/pytorch:rocm6.2.4_ubuntu22.04_py3.10_pytorch_release_2.4.0"
+notes = "custom: older ROCm 6.2 / py3.10 (default amd is ROCm 7.2 / py3.12)"

@@ -98,83 +98,83 @@ jobs:
           echo "Push failed after retries"
           exit 1
 
-  publish-data-nvidia:
-    # GPU sibling of publish-data. Runs on the self-hosted devbox
-    # inside an NVIDIA CUDA container; produces a separate machine
-    # bucket in the data repo (devbox-nvidia).
+  publish-data-gpu:
+    # GPU sibling of publish-data, matrixed over hardware vendors. Each
+    # matrix entry runs the SAME `amergin run` inside that vendor's
+    # container on the self-hosted devbox, writing a separate machine
+    # bucket (nvidia-gpu / amd-gpu / intel-gpu) in the data repo. The
+    # image + docker flags mirror amergin's environment catalog
+    # (`amergin ci-matrix`); AMD is the project's custom older-ROCm env.
     #
-    # GUARDS:
-    #   - Triggered only on push to main / workflow_dispatch (never
-    #     pull_request, which would let any fork PR execute on the
-    #     box).
-    #   - Gated on the 'gpu-devbox' Environment. Configure required
-    #     reviewers under Settings → Environments so each GPU run
-    #     waits for a maintainer's Approve click.
-    #   - Concurrency block prevents two simultaneous GPU pushes.
+    # SERIALIZATION: a single self-hosted runner runs one job at a time,
+    # so the three vendor jobs (and jobs from other runs) queue on the box
+    # and never benchmark simultaneously — no concurrency group needed,
+    # and no cancellation. `max-parallel: 1` is belt-and-suspenders if the
+    # box ever hosts more than one runner. `fail-fast: false` so a vendor
+    # that isn't set up yet doesn't abort the others.
     #
-    # RUNNER PREREQS (set up once on the box):
-    #   - GitHub self-hosted runner registered with labels
-    #     [self-hosted, devbox, nvidia]  (and amd/intel if the same
-    #     box also hosts those GPUs — labels are just intent tags;
-    #     a single runner can carry all three)
-    #   - Docker installed
-    #   - NVIDIA Container Toolkit installed and Docker configured:
-    #       sudo apt-get install -y nvidia-container-toolkit
-    #       sudo nvidia-ctk runtime configure --runtime=docker
-    #       sudo systemctl restart docker
-    #   - Network access to github.com, pypi.org, and Docker Hub
+    # GUARDS: push/dispatch to main only (never pull_request → no fork PR
+    # on the box); gated on the 'gpu-devbox' Environment (manual approve).
     #
-    # To extend for ROCm or Intel XPU: copy this job, change the
-    # container image, the --gpus / --device flags, the vendor
-    # label in runs-on (nvidia → amd / intel), and the
-    # AMERGIN_MACHINE_LABEL.
-    name: "publish benchmark data + report (nvidia)"
+    # RUNNER PREREQS (per vendor, set up once on the box):
+    #   nvidia — NVIDIA Container Toolkit (`nvidia-ctk runtime configure
+    #            --runtime=docker`); driver new enough for the image CUDA.
+    #   amd    — amdgpu/ROCm kernel driver on the HOST; the in-container
+    #            user must be in the host's render/video groups. If
+    #            `--group-add=render` by NAME doesn't grant access (GID
+    #            mismatch), replace it with the host's numeric render GID
+    #            (`getent group render`).
+    #   intel  — i915/Xe driver + compute runtime on the HOST; same
+    #            render/video group caveat as AMD.
+    # These images are large (ROCm ~10GB); pre-pull on the box to avoid
+    # per-job pull time.
+    name: "publish benchmark data + report (${{ matrix.name }})"
     needs: test
-    runs-on: [self-hosted, devbox, nvidia]
+    runs-on: [self-hosted, devbox, "${{ matrix.name }}"]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment: gpu-devbox
-    concurrency:
-      group: publish-data-nvidia-${{ github.ref }}
-      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - name: nvidia
+            image: pytorch/pytorch:2.9.1-cuda12.6-cudnn9-runtime
+            options: --gpus all
+            machine_label: nvidia-gpu
+          - name: amd
+            image: rocm/pytorch:rocm6.2.4_ubuntu22.04_py3.10_pytorch_release_2.4.0
+            options: --device=/dev/kfd --device=/dev/dri --group-add=video --group-add=render --security-opt seccomp=unconfined --ipc=host
+            machine_label: amd-gpu
+          - name: intel
+            image: intel/intel-extension-for-pytorch:2.8.10-xpu
+            options: --device=/dev/dri --group-add=render --group-add=video --ipc=host
+            machine_label: intel-gpu
     container:
-      # CUDA 12.9 runtime is the latest in-band with driver 575.x. cupy-cuda12x
-      # ships its own pre-built kernels, so we don't need the cudnn or devel
-      # variants. The asustest04 host has driver 575.57.08 → max CUDA 12.9.
-      image: nvidia/cuda:12.9.2-runtime-ubuntu22.04
-      options: --gpus all
+      image: ${{ matrix.image }}
+      options: ${{ matrix.options }}
     defaults:
-      # Inside the container, the runner defaults to sh→dash (Ubuntu's
-      # /bin/sh). That breaks any bash-ism — the commit step's
-      # ${GITHUB_SHA::8} substring expansion was the first to surface.
-      # Pin bash for every run-block in this job; it's in Ubuntu's base
-      # layer so it's already present in the nvidia/cuda image.
+      # Pin bash so ${GITHUB_SHA::8} (a bash-ism) works; the container's
+      # default /bin/sh is dash on these images.
       run:
         shell: bash
     env:
-      # Belt-and-suspenders: the nvidia/cuda image is usually
-      # preconfigured noninteractive, but tzdata / ca-certificates have
-      # been known to prompt and hang a CI job to its 6h timeout.
       DEBIAN_FRONTEND: noninteractive
     steps:
-      - name: Install system deps inside container
+      - name: Install git inside container
+        # These PyTorch images ship `python` + torch already; we only need
+        # git (+ ca-certificates) for checkout and the data-repo push.
         run: |
           apt-get update -qq
-          apt-get install -y -qq --no-install-recommends \
-            python3 python3-pip python3-venv git ca-certificates
+          apt-get install -y -qq --no-install-recommends git ca-certificates
           git --version
-      - name: GPU passthrough smoke test
-        # Fails fast with a readable error if `--gpus all` didn't actually
-        # plumb the device into the container — i.e., if the NVIDIA
-        # Container Toolkit isn't installed on the runner host. Without
-        # this, a misconfigured runner produces a confusing failure deep
-        # in cupy instead of a clear "no GPU visible" message here.
+      - name: Report torch device visibility
+        # Vendor-agnostic, informative (not fail-fast): prints whether the
+        # GPU is actually visible to torch. If all are False the run still
+        # proceeds on CPU — the recorded device makes that obvious.
         run: |
-          nvidia-smi
-          python3 -c "import ctypes; ctypes.CDLL('libcuda.so.1')"
-      - name: Trust git in any bind-mounted workspace
-        # Container runs as root but the workspace is owned by the
-        # runner's host UID — git refuses to operate on it otherwise.
-        # Wildcard is safe inside an ephemeral container.
+          python -c "import torch; print('torch', torch.__version__, '| cuda', torch.cuda.is_available(), '| hip', getattr(torch.version,'hip',None), '| xpu', hasattr(torch,'xpu') and torch.xpu.is_available())"
+      - name: Trust git in the bind-mounted workspace
         run: git config --global --add safe.directory '*'
       - name: Checkout amergin-example
         uses: actions/checkout@v4
@@ -184,26 +184,17 @@ jobs:
           repository: wilhelmi-lab/amergin-example-data
           path: data-repo
           token: ${{ secrets.DATA_REPO_TOKEN }}
-      - name: Install amergin + numops + cupy
+      - name: Install amergin + numops
+        # torch is already in the image; the device-agnostic `torch`
+        # backend uses whichever GPU this container exposes.
         run: |
-          # NB: not upgrading pip — Ubuntu 22.04's pip 22.0.2 handles
-          # modern wheels (including cupy-cuda12x) fine, and upgrading
-          # in place leaves a half-broken pip launcher on some images.
-          python3 -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
-          python3 -m pip install -e .
-          # cupy-cuda12x ships pre-built kernels for any CUDA 12.x runtime.
-          python3 -m pip install cupy-cuda12x
-      - name: Verify cupy sees the GPU
-        # cupy lazy-loads CUDA at first device op — bare `import cupy`
-        # succeeds even with no GPU. Probe the device count so we fail
-        # here with a clear message instead of mid-benchmark.
-        run: |
-          python3 -c "import cupy; n = cupy.cuda.runtime.getDeviceCount(); assert n > 0, 'cupy reports 0 GPUs'; print(f'cupy sees {n} device(s)'); print(cupy.cuda.runtime.getDeviceProperties(0))"
+          python -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+          python -m pip install -e .
       - name: Run benchmark + verify + evaluate
         env:
           AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
-          AMERGIN_MACHINE_LABEL: devbox-nvidia
-        run: python3 -m amergin run --steps benchmark,verify,evaluate
+          AMERGIN_MACHINE_LABEL: ${{ matrix.machine_label }}
+        run: python -m amergin run --steps benchmark,verify,evaluate
       - name: Commit + push to amergin-example-data
         working-directory: data-repo
         run: |
@@ -214,13 +205,9 @@ jobs:
             echo "No new data to commit."
             exit 0
           fi
-          git commit -m "ci(nvidia): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
-          # Rebase note: during a rebase `theirs` refers to commits
-          # being replayed (our new data), `ours` to the branch we're
-          # rebasing onto (origin/main). So `-X theirs` here means
-          # "keep our new commit's files on conflict" — which is what
-          # we want since report/* is the only thing that can clash
-          # and our latest report is the correct one.
+          git commit -m "ci(${{ matrix.name }}): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          # During a rebase `theirs` = the commits being replayed (our new
+          # data); -X theirs keeps our latest report on conflict.
           for i in 1 2 3; do
             if git push; then exit 0; fi
             echo "Push rejected (attempt $i/3); rebasing on remote main"
