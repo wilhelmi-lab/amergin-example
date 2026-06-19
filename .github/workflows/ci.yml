@@ -57,6 +57,20 @@ jobs:
           path: data/
           if-no-files-found: error
 
+  gpu-gate:
+    # Single manual-approval point for ALL GPU benchmarking. Gated on the
+    # 'gpu-devbox' Environment; approve it ONCE and every vendor leg below
+    # proceeds. Previously each matrix leg carried the environment, so —
+    # with max-parallel:1 serializing them — you had to approve nvidia,
+    # then amd, then intel separately. This collapses that to one click.
+    name: "gpu approval gate"
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment: gpu-devbox
+    steps:
+      - run: echo "GPU benchmarks approved for ${{ github.sha }}"
+
   benchmark-gpu:
     # Matrixed over hardware vendors; each runs inside that vendor's
     # container on the self-hosted devbox and writes its own machine
@@ -72,22 +86,23 @@ jobs:
     # so a vendor that isn't set up yet doesn't abort the others.
     #
     # GUARDS: push/dispatch to main only (never pull_request → no fork PR
-    # on the box); gated on the 'gpu-devbox' Environment (manual approve).
-    # No data-repo token here — only `publish` touches the data repo.
+    # on the box); approval is the gpu-gate job above (one click for all
+    # legs). No data-repo token here — only `publish` touches the data repo.
     #
-    # RUNNER PREREQS (per vendor, set up once on the box):
+    # RUNNER PREREQS (per vendor, set up once on the box). The container
+    # runs as root, so device nodes are reached directly — no --group-add.
+    # What each vendor needs on the HOST:
     #   nvidia — NVIDIA Container Toolkit; driver new enough for image CUDA.
-    #   amd    — amdgpu/ROCm kernel driver on the HOST; in-container user in
-    #            the host render/video groups. If --group-add=render by NAME
-    #            doesn't grant access (GID mismatch), use the host's numeric
-    #            render GID (`getent group render`).
-    #   intel  — i915/Xe driver + compute runtime on the HOST; same group
-    #            caveat. Images are large (ROCm ~10GB); pre-pull on the box.
+    #   amd    — amdgpu/ROCm kernel driver, so /dev/kfd + /dev/dri exist.
+    #   intel  — i915/Xe driver + compute runtime, so /dev/dri exists.
+    # If a host lacks the device nodes the container can't start; if the
+    # driver's there but a non-root image can't see the GPU, add the host's
+    # numeric render GID (--group-add=<gid>). Images are large (ROCm
+    # ~10GB) — pre-pull on the box to avoid per-job pull time.
     name: "benchmark (${{ matrix.name }})"
-    needs: test
+    needs: gpu-gate
     runs-on: [self-hosted, devbox, "${{ matrix.name }}"]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    environment: gpu-devbox
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -98,12 +113,12 @@ jobs:
             options: --gpus all
             machine_label: nvidia-gpu
           - name: amd
-            image: rocm/pytorch:rocm6.2.4_ubuntu22.04_py3.10_pytorch_release_2.4.0
-            options: --device=/dev/kfd --device=/dev/dri --group-add=video --group-add=render --security-opt seccomp=unconfined --ipc=host
+            image: rocm/pytorch:rocm6.4.4_ubuntu24.04_py3.12_pytorch_release_2.7.1
+            options: --device=/dev/kfd --device=/dev/dri --security-opt seccomp=unconfined --ipc=host
             machine_label: amd-gpu
           - name: intel
             image: intel/intel-extension-for-pytorch:2.8.10-xpu
-            options: --device=/dev/dri --group-add=render --group-add=video --ipc=host
+            options: --device=/dev/dri --ipc=host
             machine_label: intel-gpu
     container:
       image: ${{ matrix.image }}

@@ -40,5 +40,5 @@ parameters = {size = [4096, 16384]}
 # machine_label are inherited). Override any other field the same way, or
 # add a new environment under a new name.
 [tool.amergin.environments.amd]
-image = "rocm/pytorch:rocm6.2.4_ubuntu22.04_py3.10_pytorch_release_2.4.0"
-notes = "custom: older ROCm 6.2 / py3.10 (default amd is ROCm 7.2 / py3.12)"
+image = "rocm/pytorch:rocm6.4.4_ubuntu24.04_py3.12_pytorch_release_2.7.1"
+notes = "custom: older ROCm 6.4.4 / torch 2.7 (default amd is ROCm 7.2.4 / torch 2.10)"
