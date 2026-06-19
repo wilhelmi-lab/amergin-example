@@ -27,108 +27,63 @@ jobs:
       # GPU alternatives (normalize_cupy) register but fall back to original on CPU runner
       - run: pytest tests/ -v
 
-  publish-data:
-    # Append this run's benchmark output to the sibling data repo and
-    # let its GitHub Pages site re-deploy automatically. The benchmark
-    # itself runs against this repo's checkout; AMERGIN_STORAGE points
-    # at the data-repo checkout so writes land directly inside it.
-    #
-    # Concurrency block serializes runs so that the push-triggered job
-    # and the workflow_dispatch-triggered job (from amergin's CI) can't
-    # race each other to push competing commits to the data repo.
-    name: "publish benchmark data + report"
+  # ---- Fan-out: benchmark on each machine, upload data as an artifact.
+  # No push here. The single `publish` job at the end gathers every
+  # device's artifact, evaluates over the combined data, and commits ONCE.
+
+  benchmark-cpu:
+    name: "benchmark (cpu)"
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    concurrency:
-      group: publish-data-${{ github.ref }}
-      cancel-in-progress: false
-    defaults:
-      # Pin bash so the commit step's ${GITHUB_SHA::8} substring
-      # expansion works the same way the nvidia job needs (where the
-      # default shell inside the container is sh→dash, which rejects
-      # bash-isms). On ubuntu-latest this is the default but spelling
-      # it out keeps the two publish jobs symmetric.
-      run:
-        shell: bash
     steps:
-      - name: Checkout amergin-example
-        uses: actions/checkout@v4
-      - name: Checkout amergin-example-data
-        uses: actions/checkout@v4
-        with:
-          repository: wilhelmi-lab/amergin-example-data
-          path: data-repo
-          token: ${{ secrets.DATA_REPO_TOKEN }}
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install amergin from source
-        run: pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
-      - run: pip install -e .
-      - name: Run benchmark + verify + evaluate
-        env:
-          AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
-          AMERGIN_MACHINE_LABEL: github-ubuntu-cpu
-        run: amergin run --steps benchmark,verify,evaluate
-      - name: Commit + push to amergin-example-data
-        working-directory: data-repo
+      - name: Install amergin + numops
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          if git diff --staged --quiet; then
-            echo "No new data to commit."
-            exit 0
-          fi
-          git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
-          # Belt-and-suspenders for a concurrent push: rebase keeping
-          # OUR side on conflict (the new run's report is always the
-          # correct one). NB: during rebase git's perspective is
-          # inverted — `theirs` refers to commits being replayed (our
-          # new data), `ours` to the branch we're rebasing onto
-          # (origin/main). So `-X theirs` here means "keep our new
-          # commit's files".
-          for i in 1 2 3; do
-            if git push; then exit 0; fi
-            echo "Push rejected (attempt $i/3); rebasing on remote main"
-            git fetch origin
-            git rebase -X theirs origin/main
-          done
-          echo "Push failed after retries"
-          exit 1
+          pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+          pip install -e .
+      - name: Benchmark + verify
+        env:
+          AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data
+          AMERGIN_MACHINE_LABEL: github-ubuntu-cpu
+        run: amergin run --steps benchmark,verify
+      - name: Upload benchmark data
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-cpu
+          path: data/
+          if-no-files-found: error
 
-  publish-data-gpu:
-    # GPU sibling of publish-data, matrixed over hardware vendors. Each
-    # matrix entry runs the SAME `amergin run` inside that vendor's
-    # container on the self-hosted devbox, writing a separate machine
-    # bucket (nvidia-gpu / amd-gpu / intel-gpu) in the data repo. The
-    # image + docker flags mirror amergin's environment catalog
-    # (`amergin ci-matrix`); AMD is the project's custom older-ROCm env.
+  benchmark-gpu:
+    # Matrixed over hardware vendors; each runs inside that vendor's
+    # container on the self-hosted devbox and writes its own machine
+    # bucket (nvidia-gpu / amd-gpu / intel-gpu). Image + docker flags
+    # mirror amergin's environment catalog (`amergin ci-matrix`); AMD is
+    # the project's custom older-ROCm env. Like benchmark-cpu, this only
+    # produces an artifact — the `publish` job does the single push.
     #
-    # SERIALIZATION: a single self-hosted runner runs one job at a time,
-    # so the three vendor jobs (and jobs from other runs) queue on the box
-    # and never benchmark simultaneously — no concurrency group needed,
-    # and no cancellation. `max-parallel: 1` is belt-and-suspenders if the
-    # box ever hosts more than one runner. `fail-fast: false` so a vendor
-    # that isn't set up yet doesn't abort the others.
+    # SERIALIZATION: one self-hosted runner runs one job at a time, so the
+    # three vendor jobs (and jobs from other runs) queue on the box and
+    # never benchmark simultaneously — no concurrency group, no
+    # cancellation. max-parallel:1 is belt-and-suspenders; fail-fast:false
+    # so a vendor that isn't set up yet doesn't abort the others.
     #
     # GUARDS: push/dispatch to main only (never pull_request → no fork PR
     # on the box); gated on the 'gpu-devbox' Environment (manual approve).
+    # No data-repo token here — only `publish` touches the data repo.
     #
     # RUNNER PREREQS (per vendor, set up once on the box):
-    #   nvidia — NVIDIA Container Toolkit (`nvidia-ctk runtime configure
-    #            --runtime=docker`); driver new enough for the image CUDA.
-    #   amd    — amdgpu/ROCm kernel driver on the HOST; the in-container
-    #            user must be in the host's render/video groups. If
-    #            `--group-add=render` by NAME doesn't grant access (GID
-    #            mismatch), replace it with the host's numeric render GID
-    #            (`getent group render`).
-    #   intel  — i915/Xe driver + compute runtime on the HOST; same
-    #            render/video group caveat as AMD.
-    # These images are large (ROCm ~10GB); pre-pull on the box to avoid
-    # per-job pull time.
-    name: "publish benchmark data + report (${{ matrix.name }})"
+    #   nvidia — NVIDIA Container Toolkit; driver new enough for image CUDA.
+    #   amd    — amdgpu/ROCm kernel driver on the HOST; in-container user in
+    #            the host render/video groups. If --group-add=render by NAME
+    #            doesn't grant access (GID mismatch), use the host's numeric
+    #            render GID (`getent group render`).
+    #   intel  — i915/Xe driver + compute runtime on the HOST; same group
+    #            caveat. Images are large (ROCm ~10GB); pre-pull on the box.
+    name: "benchmark (${{ matrix.name }})"
     needs: test
     runs-on: [self-hosted, devbox, "${{ matrix.name }}"]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
@@ -154,8 +109,6 @@ jobs:
       image: ${{ matrix.image }}
       options: ${{ matrix.options }}
     defaults:
-      # Pin bash so ${GITHUB_SHA::8} (a bash-ism) works; the container's
-      # default /bin/sh is dash on these images.
       run:
         shell: bash
     env:
@@ -163,19 +116,48 @@ jobs:
     steps:
       - name: Install git inside container
         # These PyTorch images ship `python` + torch already; we only need
-        # git (+ ca-certificates) for checkout and the data-repo push.
+        # git for actions/checkout.
         run: |
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends git ca-certificates
-          git --version
       - name: Report torch device visibility
-        # Vendor-agnostic, informative (not fail-fast): prints whether the
-        # GPU is actually visible to torch. If all are False the run still
-        # proceeds on CPU — the recorded device makes that obvious.
+        # Informative (not fail-fast): is the GPU actually visible to torch?
         run: |
           python -c "import torch; print('torch', torch.__version__, '| cuda', torch.cuda.is_available(), '| hip', getattr(torch.version,'hip',None), '| xpu', hasattr(torch,'xpu') and torch.xpu.is_available())"
       - name: Trust git in the bind-mounted workspace
         run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v4
+      - name: Install amergin + numops
+        # torch is already in the image; the device-agnostic `torch`
+        # backend uses whichever GPU this container exposes.
+        run: |
+          python -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+          python -m pip install -e .
+      - name: Benchmark + verify
+        env:
+          AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data
+          AMERGIN_MACHINE_LABEL: ${{ matrix.machine_label }}
+        run: python -m amergin run --steps benchmark,verify
+      - name: Upload benchmark data
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-${{ matrix.name }}
+          path: data/
+          if-no-files-found: error
+
+  # ---- Fan-in: gather every machine's data, evaluate once, push once. ----
+  publish:
+    name: "aggregate + publish report"
+    needs: [benchmark-cpu, benchmark-gpu]
+    runs-on: ubuntu-latest
+    # always(): publish whatever device data made it, even if a GPU vendor
+    # job failed (e.g. not yet set up on the box). Still gated to main.
+    if: ${{ always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    concurrency:
+      # Serialize publishes so two runs can't race the single data-repo push.
+      group: publish-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
       - name: Checkout amergin-example
         uses: actions/checkout@v4
       - name: Checkout amergin-example-data
@@ -184,18 +166,30 @@ jobs:
           repository: wilhelmi-lab/amergin-example-data
           path: data-repo
           token: ${{ secrets.DATA_REPO_TOKEN }}
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Install amergin + numops
-        # torch is already in the image; the device-agnostic `torch`
-        # backend uses whichever GPU this container exposes.
         run: |
-          python -m pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
-          python -m pip install -e .
-      - name: Run benchmark + verify + evaluate
+          pip install "amergin[benchmark,report] @ git+https://x-access-token:${{ secrets.CROSS_REPO_TOKEN }}@github.com/wilhelmi-lab/amergin.git"
+          pip install -e .
+      - name: Gather all machines' benchmark data into the data repo
+        # merge-multiple flattens every bench-* artifact's {source}/{machine}
+        # tree into data-repo, alongside the existing history.
+        uses: actions/download-artifact@v4
+        with:
+          path: data-repo
+          pattern: bench-*
+          merge-multiple: true
+      - name: Evaluate over ALL machines (regenerate the combined report)
         env:
           AMERGIN_STORAGE__BENCHMARK_DATA: ${{ github.workspace }}/data-repo
-          AMERGIN_MACHINE_LABEL: ${{ matrix.machine_label }}
-        run: python -m amergin run --steps benchmark,verify,evaluate
-      - name: Commit + push to amergin-example-data
+        # No --machine: this runner never benchmarked, so evaluate falls
+        # back to the newest run across machines for the headline; trends +
+        # coverage span every machine regardless.
+        run: amergin evaluate
+      - name: Commit + push to amergin-example-data (single upload)
         working-directory: data-repo
         run: |
           git config user.name "github-actions[bot]"
@@ -205,7 +199,7 @@ jobs:
             echo "No new data to commit."
             exit 0
           fi
-          git commit -m "ci(${{ matrix.name }}): amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID}"
+          git commit -m "ci: amergin-example@${GITHUB_SHA::8} run ${GITHUB_RUN_ID} (cpu+gpu)"
           # During a rebase `theirs` = the commits being replayed (our new
           # data); -X theirs keeps our latest report on conflict.
           for i in 1 2 3; do
